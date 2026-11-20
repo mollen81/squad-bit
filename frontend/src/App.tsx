@@ -1,19 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { TournamentsPage } from '@/pages/tournaments/TournamentsPage';
+import { LeaguesPage } from '@/pages/leagues/LeaguesPage';
+import { RatingsPage } from '@/pages/ratings/RatingsPage';
+import { PlayerRatingsPage } from '@/pages/ratings/PlayerRatingsPage';
+import { EventLobbyPage } from '@/pages/events/EventLobbyPage';
 import { AuthPage } from '@/pages/auth/AuthPage';
 
 export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Главная страница открыта публично для всех гостей и игроков */}
         <Route path="/" element={<TournamentsPage />} />
         <Route path="/events" element={<TournamentsPage />} />
-
-        {/* Страница авторизации и регистрации */}
+        <Route path="/events/:id" element={<EventLobbyPage />} />
+        <Route path="/leagues" element={<LeaguesPage />} />
+        <Route path="/ratings" element={<RatingsPage />} />
+        <Route path="/ratings/players" element={<PlayerRatingsPage />} />
         <Route path="/auth" element={<AuthPage />} />
-
-        {/* Редирект на главную при неизвестных путях */}
         <Route path="*" element={<Navigate to="/events" replace />} />
       </Routes>
     </BrowserRouter>

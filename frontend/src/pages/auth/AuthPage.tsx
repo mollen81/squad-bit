@@ -13,23 +13,34 @@ import {
   Check,
   Refresh,
   Star,
-  Group
+  Group,
+  SunLight,
+  HalfMoon,
+  NavArrowLeft
 } from 'iconoir-react';
 import { Loading } from 'loading-dev';
-import { HybridLoopLogo } from '@/graphics/logo/HybridLoopLogo';
+import { KeycapLogo } from '@/graphics/logo/KeycapLogo';
 import { SoldierCanvas } from '@/graphics/scenes/SoldierCanvas';
 import { SteamIcon } from '@/shared/ui/SteamIcon';
+import { UserAvatar } from '@/shared/ui/UserAvatar';
 import { useAuthStore } from '@/features/auth/useAuthStore';
+import { usePreferencesStore } from '@/shared/store/usePreferencesStore';
+import { TRANSLATIONS } from '@/shared/i18n/translations';
+
+type AuthErrorKey = 'shortPassword' | 'passwordMismatch' | null;
 
 export function AuthPage() {
   const navigate = useNavigate();
+  const { theme, lang, toggleTheme, setLang } = usePreferencesStore();
+  const t = TRANSLATIONS[lang];
+
   const [mode, setMode] = useState<'register' | 'login'>('register');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorKey, setErrorKey] = useState<AuthErrorKey>(null);
   const [copiedToken, setCopiedToken] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,15 +58,15 @@ export function AuthPage() {
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setErrorMsg('');
+    setErrorKey(null);
 
     if (mode === 'register') {
       if (password.length < 6) {
-        setErrorMsg('Пароль должен содержать не менее 6 символов');
+        setErrorKey('shortPassword');
         return;
       }
       if (password !== confirmPassword) {
-        setErrorMsg('Пароли не совпадают');
+        setErrorKey('passwordMismatch');
         return;
       }
     }
@@ -83,7 +94,7 @@ export function AuthPage() {
   };
 
   const handleSteamAuth = () => {
-    setErrorMsg('');
+    setErrorKey(null);
     setIsSubmitting(true);
     setTimeout(() => {
       const steamUuid = '7b8b4a20-12ab-4de0-8e11-aa9812bc4433';
@@ -112,365 +123,428 @@ export function AuthPage() {
   const hasActiveSession = isAuthenticated && currentUser && token;
 
   return (
-    <div className="h-screen w-screen bg-[#0e0e0e] text-[#ededed] overflow-hidden selection:bg-white selection:text-black select-none">
-      <div className="w-full h-full bg-[#0e0e0e] grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-        {/* ЛЕВАЯ КОЛОНКА: УВЕЛИЧЕННАЯ НА 25% ФОРМА АВТОРИЗАЦИИ */}
-        <div className="lg:col-span-5 flex flex-col justify-between px-8 py-9 sm:px-14 sm:py-11 lg:px-16 lg:py-12 bg-[#0e0e0e] z-10 border-b lg:border-b-0 lg:border-r border-[#1f1f1f] overflow-y-auto">
-          {/* Верхний блок с укрупненным логотипом и переключателем */}
-          <div className="flex items-center justify-between gap-4">
-            <div
+    <div className="min-h-screen lg:h-screen w-screen bg-[#FFFFFF] dark:bg-[#0E0E0E] text-[#111111] dark:text-[#EDEDED] lg:overflow-hidden selection:bg-[#111111] selection:text-white dark:selection:bg-white dark:selection:text-black select-none transition-colors duration-150">
+      <div className="w-full h-full grid grid-cols-1 lg:grid-cols-12">
+        {/* ЛЕВАЯ КОЛОНКА: ФОРМА АВТОРИЗАЦИИ */}
+        <div className="lg:col-span-5 flex flex-col justify-between px-6 py-6 sm:px-10 sm:py-8 lg:px-12 lg:py-9 bg-[#FFFFFF] dark:bg-[#0E0E0E] z-10 border-b lg:border-b-0 lg:border-r border-[#E2E2E2] dark:border-[#1F1F1F] overflow-y-auto">
+          {/* Верхняя панель: логотип SB + назад к ивентам + RU/EN + тема */}
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
               onClick={() => navigate('/events')}
-              className="flex items-center gap-4 cursor-pointer"
+              className="flex items-center gap-2.5 group cursor-pointer text-left"
             >
-              <HybridLoopLogo width={74} height={52} />
-              <div className="flex flex-col">
-                <span className="text-[26px] font-bold tracking-tight text-white leading-none">
-                  squad bit
-                </span>
-                <span className="text-[12.5px] text-[#737373] tracking-[0.18em] uppercase mt-2 font-semibold">
-                  TACTICAL TOURNAMENTS
-                </span>
-              </div>
-            </div>
+              <KeycapLogo width={42} height={34} label="SB" />
+              <span className="text-[18px] font-bold tracking-tight text-[#111111] dark:text-white leading-none">
+                squad bit
+              </span>
+            </button>
 
-            {!hasActiveSession && (
-              <div className="flex items-center bg-[#141414] border border-[#282828] p-1.5 rounded-[4px]">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/events')}
+                className="h-8 px-2.5 rounded-[4px] bg-[#F4F4F4] dark:bg-[#141414] hover:bg-[#EAEAEA] dark:hover:bg-[#1E1E1E] border border-[#DCDCDC] dark:border-[#282828] text-[12px] font-semibold text-[#555555] dark:text-[#CCCCCC] hover:text-[#111111] dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <NavArrowLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{t.authPage.backToEvents}</span>
+              </button>
+
+              {/* Переключатель языка RU / EN */}
+              <div className="flex items-center h-8 bg-[#F4F4F4] dark:bg-[#141414] border border-[#DCDCDC] dark:border-[#282828] rounded-[4px] p-0.5 font-mono text-[11px] font-bold">
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode('register');
-                    setErrorMsg('');
-                  }}
-                  className={`px-4 py-2 text-[14.5px] font-bold transition-colors rounded-[3px] cursor-pointer ${
-                    mode === 'register'
-                      ? 'bg-[#2a2a2a] text-white'
-                      : 'text-[#7c7c7c] hover:text-[#d4d4d4]'
+                  onClick={() => setLang('ru')}
+                  className={`h-full px-2 rounded-[3px] transition-colors cursor-pointer ${
+                    lang === 'ru'
+                      ? 'bg-white dark:bg-[#282828] text-[#111111] dark:text-white shadow-2xs'
+                      : 'text-[#777777] dark:text-[#666666] hover:text-[#111111] dark:hover:text-[#CCCCCC]'
                   }`}
                 >
-                  Регистрация
+                  RU
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode('login');
-                    setErrorMsg('');
-                  }}
-                  className={`px-4 py-2 text-[14.5px] font-bold transition-colors rounded-[3px] cursor-pointer ${
-                    mode === 'login'
-                      ? 'bg-[#2a2a2a] text-white'
-                      : 'text-[#7c7c7c] hover:text-[#d4d4d4]'
+                  onClick={() => setLang('en')}
+                  className={`h-full px-2 rounded-[3px] transition-colors cursor-pointer ${
+                    lang === 'en'
+                      ? 'bg-white dark:bg-[#282828] text-[#111111] dark:text-white shadow-2xs'
+                      : 'text-[#777777] dark:text-[#666666] hover:text-[#111111] dark:hover:text-[#CCCCCC]'
                   }`}
                 >
-                  Вход
+                  EN
                 </button>
               </div>
-            )}
+
+              {/* Переключатель темы */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                title={theme === 'light' ? t.theme.toDark : t.theme.toLight}
+                aria-label={theme === 'light' ? t.theme.toDark : t.theme.toLight}
+                className="h-8 w-8 rounded-[4px] bg-white dark:bg-[#141414] hover:bg-[#F2F2F2] dark:hover:bg-[#1E1E1E] border border-[#DCDCDC] dark:border-[#282828] text-[#555555] dark:text-[#CCCCCC] flex items-center justify-center transition-colors cursor-pointer"
+              >
+                {theme === 'light' ? (
+                  <HalfMoon className="w-4 h-4" />
+                ) : (
+                  <SunLight className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* Центральный блок: форма увеличена с 420px до 530px (+25%) */}
-          <div className="my-auto py-8 w-full max-w-[530px] mx-auto">
+          {/* Центральный блок формы */}
+          <div className="my-auto py-8 w-full max-w-[490px] mx-auto">
             {isSubmitting ? (
-              <div className="py-20 flex flex-col items-center justify-center gap-5 bg-[#121212] border border-[#262626] rounded-[4px]">
+              <div className="py-16 flex flex-col items-center justify-center gap-4 bg-[#FAFAFA] dark:bg-[#121212] border border-[#E2E2E2] dark:border-[#262626] rounded-[4px]">
                 <Loading />
-                <span className="text-[15px] font-bold text-[#a8a8a8] uppercase tracking-wider">
-                  СИНХРОНИЗАЦИЯ ПРОФИЛЯ ОПЕРАТОРА...
+                <span className="text-[14px] font-semibold text-[#555555] dark:text-[#A8A8A8]">
+                  {t.authPage.syncing}
                 </span>
               </div>
             ) : !hasActiveSession ? (
               <>
-                {errorMsg && (
-                  <div className="mb-6 px-5 py-3.5 bg-[#1c1111] border border-[#442222] text-[#f08080] text-[15px] font-semibold rounded-[4px]">
-                    {errorMsg}
+                {/* Переключатель Регистрация / Вход */}
+                <div className="grid grid-cols-2 bg-[#F4F4F4] dark:bg-[#141414] border border-[#DCDCDC] dark:border-[#262626] p-1 rounded-[4px] mb-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('register');
+                      setErrorKey(null);
+                    }}
+                    className={`h-10 text-[14px] font-semibold transition-colors rounded-[3px] cursor-pointer ${
+                      mode === 'register'
+                        ? 'bg-white dark:bg-[#282828] text-[#111111] dark:text-white shadow-2xs'
+                        : 'text-[#666666] dark:text-[#7A7A7A] hover:text-[#111111] dark:hover:text-[#DCDCDC]'
+                    }`}
+                  >
+                    {t.authPage.registerTab}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('login');
+                      setErrorKey(null);
+                    }}
+                    className={`h-10 text-[14px] font-semibold transition-colors rounded-[3px] cursor-pointer ${
+                      mode === 'login'
+                        ? 'bg-white dark:bg-[#282828] text-[#111111] dark:text-white shadow-2xs'
+                        : 'text-[#666666] dark:text-[#7A7A7A] hover:text-[#111111] dark:hover:text-[#DCDCDC]'
+                    }`}
+                  >
+                    {t.authPage.loginTab}
+                  </button>
+                </div>
+
+                {errorKey && (
+                  <div className="mb-5 px-4 py-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/70 text-red-700 dark:text-red-300 text-[13.5px] font-medium rounded-[4px]">
+                    {t.authPage.errors[errorKey]}
                   </div>
                 )}
 
-                <form onSubmit={handleFormSubmit} className="space-y-5">
+                <form onSubmit={handleFormSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-[16px] font-bold text-[#e5e5e5] mb-2.5">
-                      Email
+                    <label className="block text-[14px] font-semibold text-[#111111] dark:text-[#E5E5E5] mb-2">
+                      {t.authPage.emailLabel}
                     </label>
                     <div className="relative">
-                      <Mail className="w-5 h-5 text-[#737373] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <Mail className="w-[18px] h-[18px] text-[#888888] dark:text-[#666666] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="hello@squadbit.gg"
-                        className="w-full h-14 pl-12 pr-4 bg-[#161616] border border-[#2a2a2a] focus:border-[#737373] focus:bg-[#1a1a1a] focus:outline-none text-[16px] font-medium text-white placeholder:text-[#5e5e5e] rounded-[4px] transition-colors"
+                        placeholder={t.authPage.emailPlaceholder}
+                        className="w-full h-12 pl-11 pr-4 bg-[#F5F5F5] dark:bg-[#161616] border border-[#DCDCDC] dark:border-[#282828] focus:border-[#111111] dark:focus:border-[#666666] focus:bg-[#FFFFFF] dark:focus:bg-[#1A1A1A] focus:outline-none text-[15px] text-[#111111] dark:text-white placeholder:text-[#8C8C8C] dark:placeholder:text-[#555555] rounded-[4px] transition-colors"
                       />
                     </div>
                   </div>
 
                   {mode === 'register' && (
                     <div>
-                      <label className="block text-[16px] font-bold text-[#e5e5e5] mb-2.5">
-                        Имя профиля
+                      <label className="block text-[14px] font-semibold text-[#111111] dark:text-[#E5E5E5] mb-2">
+                        {t.authPage.usernameLabel}
                       </label>
                       <div className="relative">
-                        <User className="w-5 h-5 text-[#737373] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <User className="w-[18px] h-[18px] text-[#888888] dark:text-[#666666] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="text"
                           required
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
-                          placeholder="Ваш игровой никнейм"
-                          className="w-full h-14 pl-12 pr-4 bg-[#161616] border border-[#2a2a2a] focus:border-[#737373] focus:bg-[#1a1a1a] focus:outline-none text-[16px] font-medium text-white placeholder:text-[#5e5e5e] rounded-[4px] transition-colors"
+                          placeholder={t.authPage.usernamePlaceholder}
+                          className="w-full h-12 pl-11 pr-4 bg-[#F5F5F5] dark:bg-[#161616] border border-[#DCDCDC] dark:border-[#282828] focus:border-[#111111] dark:focus:border-[#666666] focus:bg-[#FFFFFF] dark:focus:bg-[#1A1A1A] focus:outline-none text-[15px] text-[#111111] dark:text-white placeholder:text-[#8C8C8C] dark:placeholder:text-[#555555] rounded-[4px] transition-colors"
                         />
                       </div>
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-[16px] font-bold text-[#e5e5e5] mb-2.5">
-                      Пароль
+                    <label className="block text-[14px] font-semibold text-[#111111] dark:text-[#E5E5E5] mb-2">
+                      {t.authPage.passwordLabel}
                     </label>
                     <div className="relative">
-                      <Lock className="w-5 h-5 text-[#737373] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <Lock className="w-[18px] h-[18px] text-[#888888] dark:text-[#666666] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Установите пароль профиля"
-                        className="w-full h-14 pl-12 pr-12 bg-[#161616] border border-[#2a2a2a] focus:border-[#737373] focus:bg-[#1a1a1a] focus:outline-none text-[16px] font-medium text-white placeholder:text-[#5e5e5e] rounded-[4px] transition-colors"
+                        placeholder={t.authPage.passwordPlaceholder}
+                        className="w-full h-12 pl-11 pr-11 bg-[#F5F5F5] dark:bg-[#161616] border border-[#DCDCDC] dark:border-[#282828] focus:border-[#111111] dark:focus:border-[#666666] focus:bg-[#FFFFFF] dark:focus:bg-[#1A1A1A] focus:outline-none text-[15px] text-[#111111] dark:text-white placeholder:text-[#8C8C8C] dark:placeholder:text-[#555555] rounded-[4px] transition-colors"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#dedede] transition-colors cursor-pointer"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#777777] hover:text-[#111111] dark:hover:text-[#DEDEDE] transition-colors cursor-pointer"
                         tabIndex={-1}
                       >
                         {showPassword ? (
-                          <EyeClosed className="w-5 h-5" />
+                          <EyeClosed className="w-[18px] h-[18px]" />
                         ) : (
-                          <Eye className="w-5 h-5" />
+                          <Eye className="w-[18px] h-[18px]" />
                         )}
                       </button>
                     </div>
 
                     {mode === 'register' && password.length > 0 && (
-                      <div className="mt-3">
-                        <div className="grid grid-cols-4 gap-2 h-[5px]">
-                          {[1, 2, 3, 4].map((segment) => (
-                            <div
-                              key={segment}
-                              className={`h-full rounded-[2px] transition-colors ${
-                                segment <= securityBits ? 'bg-white' : 'bg-[#262626]'
-                              }`}
-                            />
-                          ))}
-                        </div>
+                      <div className="mt-2.5 grid grid-cols-4 gap-1.5 h-[4px]">
+                        {[1, 2, 3, 4].map((segment) => (
+                          <div
+                            key={segment}
+                            className={`h-full rounded-[2px] transition-colors ${
+                              segment <= securityBits
+                                ? 'bg-[#111111] dark:bg-white'
+                                : 'bg-[#E2E2E2] dark:bg-[#262626]'
+                            }`}
+                          />
+                        ))}
                       </div>
                     )}
                   </div>
 
                   {mode === 'register' && (
                     <div>
-                      <div className="flex items-center justify-between mb-2.5">
-                        <label className="block text-[16px] font-bold text-[#e5e5e5]">
-                          Подтверждение пароля
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-[14px] font-semibold text-[#111111] dark:text-[#E5E5E5]">
+                          {t.authPage.confirmPasswordLabel}
                         </label>
                         {confirmPassword.length > 0 && password === confirmPassword && (
-                          <span className="text-[13px] font-semibold text-[#b8b8b8] flex items-center gap-1.5">
-                            <CheckCircle className="w-4 h-4 text-white" /> Совпадает
+                          <span className="text-[12.5px] font-medium text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                            <CheckCircle className="w-3.5 h-3.5" /> {t.authPage.passwordMatch}
                           </span>
                         )}
                       </div>
                       <div className="relative">
-                        <Lock className="w-5 h-5 text-[#737373] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Lock className="w-[18px] h-[18px] text-[#888888] dark:text-[#666666] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type={showPassword ? 'text' : 'password'}
                           required
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="Повторите пароль"
-                          className="w-full h-14 pl-12 pr-4 bg-[#161616] border border-[#2a2a2a] focus:border-[#737373] focus:bg-[#1a1a1a] focus:outline-none text-[16px] font-medium text-white placeholder:text-[#5e5e5e] rounded-[4px] transition-colors"
+                          placeholder={t.authPage.confirmPasswordPlaceholder}
+                          className="w-full h-12 pl-11 pr-4 bg-[#F5F5F5] dark:bg-[#161616] border border-[#DCDCDC] dark:border-[#282828] focus:border-[#111111] dark:focus:border-[#666666] focus:bg-[#FFFFFF] dark:focus:bg-[#1A1A1A] focus:outline-none text-[15px] text-[#111111] dark:text-white placeholder:text-[#8C8C8C] dark:placeholder:text-[#555555] rounded-[4px] transition-colors"
                         />
                       </div>
                     </div>
                   )}
 
-                  <div className="pt-2.5">
+                  <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full h-14 bg-white hover:bg-[#e6e6e6] active:bg-[#d4d4d4] text-[#0a0a0a] text-[16.5px] font-bold rounded-[4px] transition-colors cursor-pointer"
+                      className="w-full h-12 bg-[#111111] dark:bg-white hover:bg-[#2A2A2A] dark:hover:bg-[#E5E5E5] text-white dark:text-[#0A0A0A] text-[15px] font-semibold rounded-[4px] transition-colors cursor-pointer"
                     >
-                      {mode === 'register' ? 'Зарегистрироваться' : 'Войти'}
+                      {mode === 'register' ? t.authPage.submitRegister : t.authPage.submitLogin}
                     </button>
                   </div>
                 </form>
 
-                <div className="mt-5 text-center">
+                <div className="mt-4 text-center">
                   {mode === 'register' ? (
-                    <p className="text-[15px] text-[#808080]">
-                      Уже есть аккаунт?{' '}
+                    <p className="text-[13.5px] text-[#666666] dark:text-[#808080]">
+                      {t.authPage.haveAccount}{' '}
                       <button
                         type="button"
                         onClick={() => {
                           setMode('login');
-                          setErrorMsg('');
+                          setErrorKey(null);
                         }}
-                        className="text-[#cccccc] font-semibold hover:text-white underline underline-offset-4 transition-colors cursor-pointer"
+                        className="text-[#111111] dark:text-[#CCCCCC] font-semibold hover:underline underline-offset-4 transition-colors cursor-pointer"
                       >
-                        Войти
+                        {t.authPage.loginTab}
                       </button>
                     </p>
                   ) : (
-                    <p className="text-[15px] text-[#808080]">
-                      Нет аккаунта?{' '}
+                    <p className="text-[13.5px] text-[#666666] dark:text-[#808080]">
+                      {t.authPage.noAccount}{' '}
                       <button
                         type="button"
                         onClick={() => {
                           setMode('register');
-                          setErrorMsg('');
+                          setErrorKey(null);
                         }}
-                        className="text-[#cccccc] font-semibold hover:text-white underline underline-offset-4 transition-colors cursor-pointer"
+                        className="text-[#111111] dark:text-[#CCCCCC] font-semibold hover:underline underline-offset-4 transition-colors cursor-pointer"
                       >
-                        Регистрация
+                        {t.authPage.registerTab}
                       </button>
                     </p>
                   )}
                 </div>
 
-                <div className="relative my-7 flex items-center justify-center">
-                  <div className="w-full border-t border-[#222222]" />
-                  <span className="px-4 bg-[#0e0e0e] text-[14px] font-semibold text-[#666666]">
-                    или
+                <div className="relative my-6 flex items-center justify-center">
+                  <div className="w-full border-t border-[#E5E5E5] dark:border-[#222222]" />
+                  <span className="px-3.5 bg-[#FFFFFF] dark:bg-[#0E0E0E] text-[13px] font-medium text-[#777777] dark:text-[#666666]">
+                    {t.authPage.orDivider}
                   </span>
-                  <div className="w-full border-t border-[#222222]" />
+                  <div className="w-full border-t border-[#E5E5E5] dark:border-[#222222]" />
                 </div>
 
                 <div>
                   <button
                     type="button"
                     onClick={handleSteamAuth}
-                    className="w-full h-14 bg-[#121212] hover:bg-[#1b1b1b] border border-[#2c2c2c] hover:border-[#444444] text-white text-[16px] font-bold rounded-[4px] flex items-center justify-center gap-3.5 transition-colors cursor-pointer"
+                    className="w-full h-12 bg-[#FAFAFA] dark:bg-[#141414] hover:bg-[#EFEFEF] dark:hover:bg-[#1C1C1C] border border-[#DCDCDC] dark:border-[#2C2C2C] hover:border-[#A8A8A8] dark:hover:border-[#444444] text-[#111111] dark:text-white text-[14.5px] font-semibold rounded-[4px] flex items-center justify-center gap-3 transition-colors cursor-pointer"
                   >
-                    <SteamIcon className="w-5 h-5 text-white" />
+                    <SteamIcon className="w-5 h-5" />
                     <span>
-                      {mode === 'register' ? 'Регистрация через Steam' : 'Войти через Steam'}
+                      {mode === 'register' ? t.authPage.steamRegister : t.authPage.steamLogin}
                     </span>
                   </button>
 
-                  <p className="mt-3.5 text-[14px] text-[#7c7c7c] text-center leading-relaxed">
-                    При регистрации через стим, будет выдан рейтинг в зависимости от опыта в игре
+                  <p className="mt-3 text-[12.5px] text-[#777777] dark:text-[#7A7A7A] text-center leading-relaxed">
+                    {t.authPage.steamHint}
                   </p>
                 </div>
               </>
             ) : (
-              <div className="bg-[#121212] border border-[#282828] p-7 rounded-[4px] space-y-6">
-                <div className="flex items-center justify-between border-b border-[#222222] pb-4">
+              <div className="bg-[#FAFAFA] dark:bg-[#121212] border border-[#E2E2E2] dark:border-[#282828] p-6 rounded-[4px] space-y-5">
+                <div className="flex items-center justify-between border-b border-[#E5E5E5] dark:border-[#222222] pb-4">
                   <div className="flex items-center gap-3">
-                    <ShieldCheck className="w-5 h-5 text-white" />
-                    <span className="text-[16px] font-bold text-white">
-                      UserPrincipal инициализирован
-                    </span>
+                    <UserAvatar username={currentUser.username} size="md" />
+                    <div>
+                      <div className="text-[15px] font-bold text-[#111111] dark:text-white">
+                        {currentUser.username}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[12px] text-emerald-700 dark:text-emerald-400 font-medium">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>{t.authPage.session.title}</span>
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-[13px] font-bold px-2.5 py-1 bg-[#1d1d1d] border border-[#303030] text-[#cccccc] rounded-[3px]">
+                  <span className="font-mono text-[11.5px] font-bold px-2 py-0.5 bg-[#EFEFEF] dark:bg-[#1D1D1D] border border-[#DCDCDC] dark:border-[#303030] text-[#444444] dark:text-[#CCCCCC] rounded-[3px]">
                     200 OK
                   </span>
                 </div>
 
-                <div className="space-y-3 text-[14.5px]">
-                  <div className="flex justify-between">
-                    <span className="text-[#777777]">id (UUID):</span>
-                    <span className="text-[#dedede] font-medium">
+                <div className="space-y-2.5 text-[13.5px]">
+                  <div className="flex justify-between gap-2">
+                    <span className="text-[#666666] dark:text-[#777777]">ID</span>
+                    <span className="font-mono text-[#111111] dark:text-[#DEDEDE]">
                       {currentUser.id.slice(0, 18)}...
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#777777]">username:</span>
-                    <span className="text-white font-bold">
-                      {currentUser.username}
+                  <div className="flex justify-between gap-2">
+                    <span className="text-[#666666] dark:text-[#777777]">Role</span>
+                    <span className="font-mono text-[#111111] dark:text-[#CCCCCC] font-semibold">
+                      {currentUser.role}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#777777]">role:</span>
-                    <span className="text-[#cccccc] font-semibold">{currentUser.role}</span>
-                  </div>
                   {currentUser.steamId && (
-                    <div className="flex justify-between">
-                      <span className="text-[#777777]">steamId:</span>
-                      <span className="text-[#dedede]">{currentUser.steamId}</span>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-[#666666] dark:text-[#777777]">SteamID</span>
+                      <span className="font-mono text-[#111111] dark:text-[#DEDEDE]">
+                        {currentUser.steamId}
+                      </span>
                     </div>
                   )}
-                  <div className="flex justify-between pt-3 border-t border-[#1f1f1f]">
-                    <span className="text-[#777777]">Начальный рейтинг:</span>
-                    <span className="text-white font-bold flex items-center gap-2">
-                      <Star className="w-4 h-4 text-[#cccccc]" />
+                  <div className="flex justify-between gap-2 pt-2.5 border-t border-[#EAEAEA] dark:border-[#1F1F1F]">
+                    <span className="text-[#666666] dark:text-[#777777]">
+                      {t.authPage.session.initialRating}
+                    </span>
+                    <span className="font-mono text-[#111111] dark:text-white font-bold flex items-center gap-1.5">
+                      <Star className="w-4 h-4 text-[#666666] dark:text-[#CCCCCC]" />
                       {currentUser.rating} ELO
                       {currentUser.squadHours
-                        ? ` (${currentUser.squadHours}ч в Squad)`
+                        ? ` (${t.authPage.session.squadHours(currentUser.squadHours)})`
                         : ''}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between text-[13px] text-[#777777] mb-2">
-                    <span className="flex items-center gap-1.5 font-semibold">
-                      <Terminal className="w-4 h-4" /> Authorization: Bearer
+                  <div className="flex items-center justify-between text-[12px] text-[#666666] dark:text-[#777777] mb-1.5">
+                    <span className="font-mono flex items-center gap-1.5 font-semibold">
+                      <Terminal className="w-3.5 h-3.5" /> Bearer token
                     </span>
                     <button
                       type="button"
                       onClick={handleCopyJwt}
-                      className="text-[#aaaaaa] hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer font-semibold"
+                      className="text-[#555555] dark:text-[#AAAAAA] hover:text-[#111111] dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer font-semibold"
                     >
                       {copiedToken ? (
                         <>
-                          <Check className="w-4 h-4" /> Скопировано
+                          <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          {t.authPage.session.copied}
                         </>
                       ) : (
                         <>
-                          <Copy className="w-4 h-4" /> Копировать
+                          <Copy className="w-3.5 h-3.5" /> {t.authPage.session.copy}
                         </>
                       )}
                     </button>
                   </div>
-                  <div className="p-3.5 bg-[#0b0b0b] border border-[#222222] text-[13px] text-[#999999] break-all leading-relaxed rounded-[3px]">
+                  <div className="font-mono p-3 bg-white dark:bg-[#0B0B0B] border border-[#E2E2E2] dark:border-[#222222] text-[11.5px] text-[#555555] dark:text-[#999999] break-all leading-relaxed rounded-[3px]">
                     {token}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3.5 pt-2">
+                <div className="grid grid-cols-2 gap-3 pt-1">
                   <button
                     type="button"
                     onClick={() => navigate('/events')}
-                    className="w-full h-12 bg-white hover:bg-[#e6e6e6] text-[#0a0a0a] text-[15px] font-bold rounded-[4px] transition-colors cursor-pointer"
+                    className="w-full h-11 bg-[#111111] dark:bg-white hover:bg-[#2A2A2A] dark:hover:bg-[#E5E5E5] text-white dark:text-[#0A0A0A] text-[14px] font-semibold rounded-[4px] transition-colors cursor-pointer"
                   >
-                    На главную
+                    {t.authPage.session.toEvents}
                   </button>
                   <button
                     type="button"
                     onClick={clearSession}
-                    className="w-full h-12 bg-[#1a1a1a] hover:bg-[#242424] border border-[#2e2e2e] text-[15px] text-white font-bold flex items-center justify-center gap-2 rounded-[4px] transition-colors cursor-pointer"
+                    className="w-full h-11 bg-white dark:bg-[#1A1A1A] hover:bg-[#EFEFEF] dark:hover:bg-[#242424] border border-[#DCDCDC] dark:border-[#2E2E2E] text-[14px] text-[#111111] dark:text-white font-semibold flex items-center justify-center gap-2 rounded-[4px] transition-colors cursor-pointer"
                   >
                     <Refresh className="w-4 h-4" />
-                    <span>Выйти</span>
+                    <span>{t.authPage.session.logout}</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="pt-5 border-t border-[#1a1a1a] flex items-center justify-between text-[13px] text-[#737373]">
-            <div className="flex items-center gap-2.5">
+          {/* Нижняя строка статистики */}
+          <div className="pt-4 border-t border-[#ECECEC] dark:border-[#1A1A1A] flex items-center justify-between text-[12.5px] text-[#666666] dark:text-[#737373]">
+            <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
               <Group className="w-4 h-4 text-[#888888]" />
               <span>
-                ОПЕРАТОРОВ В СЕТИ: <strong className="text-[#dedede] font-bold">1,420</strong>
+                {t.authPage.footer.onlineOperators}:{' '}
+                <strong className="font-mono text-[#111111] dark:text-[#DEDEDE] font-bold">
+                  1,420
+                </strong>
               </span>
             </div>
             <span>
-              ВСЕГО ПРОФИЛЕЙ: <strong className="text-[#cccccc] font-bold">18,940</strong>
+              {t.authPage.footer.totalProfiles}:{' '}
+              <strong className="font-mono text-[#111111] dark:text-[#CCCCCC] font-bold">
+                18,940
+              </strong>
             </span>
           </div>
         </div>
 
-        {/* ПРАВАЯ КОЛОНКА: DOT-MATRIX БОЕЦ */}
-        <div className="lg:col-span-7 relative min-h-[440px] lg:min-h-full bg-[#0e0e0e]">
-          <SoldierCanvas />
+        {/* ПРАВАЯ КОЛОНКА: DOT-MATRIX БОЕЦ (АДАПТИРУЕТСЯ ПОД СВЕТЛУЮ И ТЁМНУЮ ТЕМЫ) */}
+        <div className="lg:col-span-7 relative min-h-[420px] lg:min-h-full bg-[#F7F7F7] dark:bg-[#0E0E0E] overflow-hidden">
+          <div className="w-full h-full invert contrast-[1.12] mix-blend-multiply dark:invert-0 dark:contrast-100 dark:mix-blend-normal">
+            <SoldierCanvas />
+          </div>
         </div>
       </div>
     </div>

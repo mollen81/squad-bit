@@ -1,21 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --font-sans: 'IBM Plex Mono', monospace;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
-}
-
-:root {
-  --bg-deep: #0e0e0e;
-  --bg-surface: #141414;
-  --border-subtle: #222222;
-  --text-main: #f0f0f0;
-  --text-muted: #8c8c8c;
-}
-
-*, *::before, *::after {
-  font-family: 'IBM Plex Mono', monospace !important;
 }
 
 html, body {
@@ -23,8 +13,17 @@ html, body {
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: #0e0e0e;
-  color: #f0f0f0;
-  font-family: 'IBM Plex Mono', monospace !important;
+  background-color: #FFFFFF;
+  color: #111111;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+html.dark, html.dark body {
+  background-color: #0E0E0E;
+  color: #EDEDED;
+}
+
+code, pre, kbd, .font-mono {
+  font-family: 'IBM Plex Mono', monospace;
 }
