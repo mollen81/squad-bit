@@ -1,15 +1,22 @@
 package com.squad.event.grpc;
 
 import com.google.protobuf.Empty;
+import com.google.protobuf.Timestamp;
+import com.squad.event.model.domain.Event;
 import com.squad.event.model.domain.TimelineEvent;
 import com.squad.event.model.enums.EventGameMode;
+import com.squad.event.model.enums.EventStatus;
 import com.squad.event.service.EventService;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -128,10 +135,75 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
                 request.getEventId(), request.getMatchSequenceNumber());
     }
 
+    @Override
     public void streamMatchTimeline(
             StreamMatchTimelineRequest request,
             StreamObserver<com.squad.event.grpc.TimelineEvent> responseStreamObserver) {
         log.info("Starting to stream match timeline on event {}", request.getEventId());
         streamManager.registerGatewayObserver(UUID.fromString(request.getEventId()), responseStreamObserver);
+    }
+
+    @Override
+    public void getAllByStatus(
+            GetAllByStatusRequest request,
+            StreamObserver<GetAllByStatusResponse> streamObserver) {
+
+        log.info("Starting to process gRPC getAllByStatus request");
+
+        Page<Event> eventPage = eventService.findAllByStatus(
+                EventStatus.valueOf(request.getStatus()),
+                PageRequest.of(request.getPage(), request.getRpp(), Sort.Direction.fromString(request.getSortDir())));
+
+        List<EventDto> eventDtos = eventPage.getContent().stream()
+                .map(this::toEventDto)
+                .toList();
+
+        PageInfo pageInfo = PageInfo.newBuilder()
+                .setCurrentPage(eventPage.getNumber())
+                .setRpp(eventPage.getNumber())
+                .setTotalElements(eventPage.getTotalElements())
+                .setTotalPages(eventPage.getTotalPages())
+                .setHasNext(eventPage.hasNext())
+                .setHasPrevious(eventPage.hasPrevious())
+                .build();
+
+        GetAllByStatusResponse response = GetAllByStatusResponse.newBuilder()
+                .addAllEvents(eventDtos)
+                .setPageInfo(pageInfo)
+                .build();
+
+        log.info("gRPC getAllByStatus request is processed");
+    }
+
+
+    public EventDto toEventDto(Event event) {
+        EventDto.Builder builder = EventDto.newBuilder()
+                .setId(event.getId().toString())
+                .setCreatorUserId(event.getCreatorUserId().toString())
+                .setTargetGameCount(event.getTargetGameCount())
+                .setStatus(com.squad.event.grpc.EventStatus.valueOf(event.getStatus().name()))
+                .setGameMode(com.squad.event.grpc.EventGameMode.valueOf(event.getGameMode().name()));
+
+        if (event.getName() != null) {
+            builder.setName(event.getName());
+        }
+        if (event.getTimeStart() != null) {
+            builder.setTimeStart(toProtoTimestamp(event.getTimeStart()));
+        }
+        if (event.getCreatedAt() != null) {
+            builder.setCreatedAt(toProtoTimestamp(event.getCreatedAt()));
+        }
+        if (event.getUpdatedAt() != null) {
+            builder.setUpdatedAt(toProtoTimestamp(event.getUpdatedAt()));
+        }
+
+        return builder.build();
+    }
+
+    private Timestamp toProtoTimestamp(Instant instant) {
+        return Timestamp.newBuilder()
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
+                .build();
     }
 }

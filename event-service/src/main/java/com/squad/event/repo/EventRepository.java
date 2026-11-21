@@ -2,6 +2,8 @@ package com.squad.event.repo;
 
 import com.squad.event.model.domain.Event;
 import com.squad.event.model.enums.EventStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,4 +37,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     @Query(value = "SELECT id FROM event WHERE status = :#{#status.name()} AND time_start <= :threshold", nativeQuery = true)
     List<UUID> findEventIdsWithStatusAndTimeStartThreshold(@Param("status") EventStatus status, @Param("threshold") Instant threshold);
+
+    // Pageable
+
+    // From new to old events
+    Page<Event> findAllByStatus(EventStatus status, Pageable pageable);
 }

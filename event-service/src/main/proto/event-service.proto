@@ -17,8 +17,74 @@ service EventService {
   rpc MapVote(MapVoteRequest) returns (google.protobuf.Empty);
   rpc GetMatchTimeline(GetMatchTimelineRequest) returns (GetMatchTimelineResponse);
   rpc StreamMatchTimeline(StreamMatchTimelineRequest) returns (stream TimelineEvent);
+  rpc GetAllByStatus(GetAllByStatusRequest) returns (GetAllByStatusResponse);
 }
 
+
+// domains
+message EventDto {
+  string id = 1;
+  string name = 2;
+  string creator_user_id = 3;
+  int32 target_game_count = 4;
+  EventStatus status = 5;
+  google.protobuf.Timestamp time_start = 6;
+  EventGameMode game_mode = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message PageInfo {
+  int32 current_page = 1;
+  int32 rpp = 2;
+  int64 total_elements = 3;
+  int32 total_pages = 4;
+  bool has_next = 5;
+  bool has_previous = 6;
+}
+
+enum SortDirection {
+  SORT_DIRECTION_UNSPECIFIED = 0;
+  ASC = 1;
+  DESC = 2;
+}
+
+enum EventStatus {
+  DRAFT = 0;
+  REGISTRATION = 1;
+  PREPARING = 2;
+  LIVE = 3;
+  FINISHED = 4;
+  CANCELED = 5;
+}
+
+enum EventGameMode {
+  RAAS = 0;
+  AAS = 1;
+  INVASION = 2;
+  SKIRMISH = 3;
+}
+
+message TimelineEvent {
+  string id = 1;
+  string match_id = 2;
+  string timelineEventType = 3;
+  int32 game_time_seconds = 4;
+  string payload = 5;
+  uint64 created_at = 6;
+}
+
+enum TimelineEventType {
+  KILL = 0;
+  REVIVE = 1;
+  VEHICLE_DESTROYED = 2;
+  FLAG_CAPTURED = 3;
+  FOB_DESTROYED = 4;
+  TICKETS_UPDATE = 5;
+}
+
+
+// method messages
 
 // createEvent method request/response data -> method for players to create the event
 message CreateEventRequest {
@@ -34,13 +100,6 @@ message CreateEventRequest {
 
 message CreateEventResponse {
   string event_id = 1;
-}
-
-enum EventGameMode {
-  RAAS = 0;
-  AAS = 1;
-  INVASION = 2;
-  SKIRMISH = 3;
 }
 
 
@@ -81,28 +140,24 @@ message GetMatchTimelineResponse {
   repeated TimelineEvent timelineMatchEvents = 1;
 }
 
-message TimelineEvent {
-  string id = 1;
-  string match_id = 2;
-  string timelineEventType = 3;
-  int32 game_time_seconds = 4;
-  string payload = 5;
-  uint64 created_at = 6;
-}
-
-enum TimelineEventType {
-  KILL = 0;
-  REVIVE = 1;
-  VEHICLE_DESTROYED = 2;
-  FLAG_CAPTURED = 3;
-  FOB_DESTROYED = 4;
-  TICKETS_UPDATE = 5;
-}
-
 
 // streamMatchTimeline
 message StreamMatchTimelineRequest {
   string event_id = 1;
+}
+
+
+message GetAllByStatusRequest {
+  string status = 1;
+  int32 page = 2;
+  int32 rpp = 3;
+  string sortBy = 4;
+  string sortDir = 5;
+}
+
+message GetAllByStatusResponse {
+  repeated EventDto events = 1;
+  PageInfo page_info = 2;
 }
 
 

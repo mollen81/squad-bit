@@ -6,9 +6,12 @@ import com.squad.event.kafka.event.ServerReadyEvent;
 import com.squad.event.model.domain.*;
 import com.squad.event.model.dto.CreateEventRequest;
 import com.squad.event.model.dto.JoinEventRequest;
+import com.squad.event.model.enums.EventStatus;
 import com.squad.event.repo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +27,7 @@ public class EventService {
     private final EventSideManagementService eventSideManagementService;
     private final EventMatchLayerManagementService eventMatchLayerManagementService;
     private final EventMatchTimelineService eventMatchTimelineService;
+    private final EventRepository eventRepository;
 
 
     public UUID createEvent(CreateEventRequest request) {
@@ -66,5 +70,9 @@ public class EventService {
 
     public List<TimelineEvent> getMatchTimelineHistory(UUID eventId, int matchSequenceNumber) {
         return eventMatchTimelineService.getMatchTimelineHistory(eventId, matchSequenceNumber);
+    }
+
+    public Page<Event> findAllByStatus(EventStatus status, Pageable pageable) {
+        return eventRepository.findAllByStatus(status, pageable);
     }
 }
