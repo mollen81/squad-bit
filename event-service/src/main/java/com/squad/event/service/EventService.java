@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,6 +30,10 @@ public class EventService {
     private final EventMatchTimelineService eventMatchTimelineService;
     private final EventRepository eventRepository;
 
+
+    public Optional<Event> getEventById(UUID id) {
+        return eventRepository.findById(id);
+    }
 
     public UUID createEvent(CreateEventRequest request) {
         return eventLifecycleManagementService.createEvent(request);
@@ -72,7 +77,7 @@ public class EventService {
         return eventMatchTimelineService.getMatchTimelineHistory(eventId, matchSequenceNumber);
     }
 
-    public Page<Event> findAllByStatus(EventStatus status, Pageable pageable) {
+    public Page<Event> getAllEventsByStatus(EventStatus status, Pageable pageable) {
         return eventRepository.findAllByStatus(status, pageable);
     }
 }

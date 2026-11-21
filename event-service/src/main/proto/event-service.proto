@@ -18,6 +18,7 @@ service EventService {
   rpc GetMatchTimeline(GetMatchTimelineRequest) returns (GetMatchTimelineResponse);
   rpc StreamMatchTimeline(StreamMatchTimelineRequest) returns (stream TimelineEvent);
   rpc GetAllByStatus(GetAllByStatusRequest) returns (GetAllByStatusResponse);
+  rpc GetEventById(GetEventByIdRequest) returns (GetEventByIdResponse);
 }
 
 
@@ -147,6 +148,7 @@ message StreamMatchTimelineRequest {
 }
 
 
+// getAllEventsByStatus paginated method
 message GetAllByStatusRequest {
   string status = 1;
   int32 page = 2;
@@ -158,6 +160,16 @@ message GetAllByStatusRequest {
 message GetAllByStatusResponse {
   repeated EventDto events = 1;
   PageInfo page_info = 2;
+}
+
+
+// getEventById
+message GetEventByIdRequest {
+  string id = 1;
+}
+
+message GetEventByIdResponse {
+  EventDto event = 1;
 }
 
 

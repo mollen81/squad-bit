@@ -138,9 +138,28 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
     @Override
     public void streamMatchTimeline(
             StreamMatchTimelineRequest request,
-            StreamObserver<com.squad.event.grpc.TimelineEvent> responseStreamObserver) {
+            StreamObserver<com.squad.event.grpc.TimelineEvent> streamObserver) {
         log.info("Starting to stream match timeline on event {}", request.getEventId());
-        streamManager.registerGatewayObserver(UUID.fromString(request.getEventId()), responseStreamObserver);
+        streamManager.registerGatewayObserver(UUID.fromString(request.getEventId()), streamObserver);
+    }
+
+    @Override
+    public void getEventById(GetEventByIdRequest request, StreamObserver<GetEventByIdResponse> streamObserver) {
+        log.info("Starting to process gRPC getEventById request");
+
+        Event event = eventService.getEventById(UUID.fromString(request.getId()))
+                .orElseThrow(() -> new IllegalArgumentException("Event with id " + request.getId() + " not found"));
+
+        EventDto eventDto = toEventDto(event);
+
+        GetEventByIdResponse response = GetEventByIdResponse.newBuilder()
+                .setEvent(eventDto)
+                .build();
+
+        streamObserver.onNext(response);
+        streamObserver.onCompleted();
+
+        log.info("gRPC getEventById request is processed");
     }
 
     @Override
@@ -150,7 +169,7 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
 
         log.info("Starting to process gRPC getAllByStatus request");
 
-        Page<Event> eventPage = eventService.findAllByStatus(
+        Page<Event> eventPage = eventService.getAllEventsByStatus(
                 EventStatus.valueOf(request.getStatus()),
                 PageRequest.of(request.getPage(), request.getRpp(), Sort.Direction.fromString(request.getSortDir())));
 
@@ -172,10 +191,14 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
                 .setPageInfo(pageInfo)
                 .build();
 
+        streamObserver.onNext(response);
+        streamObserver.onCompleted();
+
         log.info("gRPC getAllByStatus request is processed");
     }
 
 
+    // mapping to gRPC event object
     public EventDto toEventDto(Event event) {
         EventDto.Builder builder = EventDto.newBuilder()
                 .setId(event.getId().toString())
