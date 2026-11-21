@@ -4,15 +4,17 @@ import com.squad.event.kafka.event.EventMatchTimelineEvent;
 import com.squad.event.kafka.event.MatchFinishedEvent;
 import com.squad.event.kafka.event.ServerReadyEvent;
 import com.squad.event.model.domain.*;
-import com.squad.event.model.dto.CreateEventHttpRequest;
-import com.squad.event.model.dto.JoinEventHttpRequest;
-import com.squad.event.model.dto.MapVoteHttpRequest;
-import com.squad.event.model.dto.UpdateSideReadyHttpRequest;
+import com.squad.event.model.dto.*;
+import com.squad.event.model.enums.EventStatus;
+import com.squad.event.repo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,7 +27,12 @@ public class EventService {
     private final EventSideManagementService eventSideManagementService;
     private final EventMatchLayerManagementService eventMatchLayerManagementService;
     private final EventMatchTimelineService eventMatchTimelineService;
+    private final EventRepository eventRepository;
 
+
+    public Optional<Event> getEventById(UUID id) {
+        return eventRepository.findById(id);
+    }
 
     public UUID createEvent(CreateEventHttpRequest request) {
         return eventLifecycleManagementService.createEvent(request);
@@ -67,5 +74,9 @@ public class EventService {
 
     public List<TimelineEvent> getMatchTimelineHistory(UUID eventId, UUID matchId) {
         return eventMatchTimelineService.getMatchTimelineHistory(eventId, matchId);
+    }
+
+    public Page<Event> getAllEventsByStatus(EventStatus status, Pageable pageable) {
+        return eventRepository.findAllByStatus(status, pageable);
     }
 }

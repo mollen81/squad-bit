@@ -5,12 +5,15 @@ CREATE TABLE event (
     target_game_count INTEGER NOT NULL,
     status VARCHAR(32) NOT NULL,
     time_start TIMESTAMP WITH TIME ZONE NOT NULL,
+    game_mode VARCHAR(32) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE INDEX idx_event_creator_user_id ON event(creator_user_id);
 CREATE INDEX idx_event_time_start ON event(time_start);
+CREATE INDEX idx_event_created_at ON event(created_at);
+CREATE INDEX idx_event_created_at ON event(game_mode);
 
 
 CREATE TABLE event_side (
