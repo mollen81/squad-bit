@@ -11,6 +11,10 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.UUID;
@@ -97,11 +101,9 @@ public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanSer
     public void getClanWithMembers(GetClanRequest request, StreamObserver<GetClanResponse> responseObserver) {
         log.info("Requesting information about clan with clanId: {}", request.getClanId());
         try {
-            ClanRequests.GetClanDto dto = ClanRequests.GetClanDto.builder()
-                    .clanId(UUID.fromString(request.getClanId()))
-                    .build();
+            UUID clanId = UUID.fromString(request.getClanId());
 
-            Clan clan = clanFacade.getClanWithMembers(dto);
+            Clan clan = clanFacade.getClanWithMembers(clanId);
 
             GetClanResponse response = mapToClanWithMembersResponse(clan);
 
@@ -133,11 +135,47 @@ public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanSer
         }
     }
 
+    @Override
+    public void getAllClans(GetAllClansRequest request, StreamObserver<GetAllClansResponse> responseObserver) {
+        log.info("Fetching clans page {}, rpp {}", request.getPage(), request.getRpp());
+        try {
+            Pageable pageable = PageRequest.of(
+                    request.getPage(),
+                    request.getRpp(),
+                    Sort.Direction.fromString(request.getSortDir()),
+                    request.getSortBy());
+
+            Page<Clan> clanPage = clanFacade.getAllClans(pageable);
+
+            java.util.List<ClanDto> clanDtos = clanPage.stream().map(this::mapToClanDto).toList();
+
+            GetAllClansResponse response = GetAllClansResponse.newBuilder()
+                    .addAllClans(clanDtos)
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            log.info("Clans page {}, rpp {} successfully fetched", request.getPage(), request.getRpp());
+        }
+        catch (IllegalArgumentException e) {
+            log.error("Clans page not found for page {}, rpp {}", request.getPage(), request.getRpp());
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
+        } catch (Exception e) {
+            log.error("Unexpected error for getAllClans call");
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
+        }
+    }
+
+    @Override
     public void getClanIdFromUserId(
             GetClanIdFromUserIdRequest request,
             StreamObserver<GetClanIdFromUserIdResponse> responseObserver
     ) {
-        log.info("Finding clan_id for user_id {} from clan_member table", request.getUserId());
+        log.info("Finding clanId for userId {} from clan_member table", request.getUserId());
         try {
             UUID clanId = clanFacade.getClanIdFromUserId(UUID.fromString(request.getUserId()));
 
@@ -149,7 +187,7 @@ public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanSer
             responseObserver.onCompleted();
         }
         catch (IllegalArgumentException e) {
-            log.error("clan_id is not found for user_id {} in table clan_member", request.getUserId());
+            log.error("clanId is not found for userId {} in table clan_member", request.getUserId());
             responseObserver.onError(
                     Status.NOT_FOUND
                             .withDescription(e.getMessage())
@@ -167,7 +205,7 @@ public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanSer
         }
     }
 
-
+    @Override
     public void processAcceptance(ProcessAcceptanceRequest request, StreamObserver<ProcessAcceptanceResponse> responseObserver) {
         log.info("Processing the acceptance of application: {}, accepted by user: {}",
                 request.getApplicationId(), request.getAcceptorId());
@@ -198,17 +236,25 @@ public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanSer
 
     // MAPPERS
     private GetClanResponse mapToClanWithMembersResponse(Clan clan) {
+        ClanDto clanDto = mapToClanDto(clan);
+
+        return GetClanResponse.newBuilder()
+                .setClan(clanDto)
+                .build();
+    }
+
+    public ClanDto mapToClanDto(Clan clan) {
         List<ClanMemberDto> memberResponses = clan.getMembers().stream()
                 .map(this::mapToMemberGrpcResponse)
                 .toList();
 
-        return GetClanResponse.newBuilder()
+        return ClanDto.newBuilder()
                 .setId(clan.getId().toString())
                 .setName(clan.getName())
                 .setTag(clan.getTag())
                 .setDescription(clan.getDescription() != null ? clan.getDescription() : "")
                 .setRequirements(clan.getRequirements() != null ? clan.getRequirements() : "")
-                .setAvatarUrl(clan.getAvatar_url() != null ? clan.getAvatar_url() : "")
+                .setAvatarUrl(clan.getAvatarUrl() != null ? clan.getAvatarUrl() : "")
                 .setIsRecruiting(clan.getIsRecruiting() != null ? clan.getIsRecruiting() : true)
                 .setStatus(clan.getStatus() != null ? clan.getStatus().name() : "")
                 .setTotalElo(clan.getTotalElo() != null ? clan.getTotalElo() : 0)

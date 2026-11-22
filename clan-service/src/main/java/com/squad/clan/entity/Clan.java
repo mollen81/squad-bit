@@ -40,7 +40,7 @@ public class Clan {
     private final int minElo = 500;
 
     @Column(name = "avatar_url")
-    private String avatar_url;
+    private String avatarUrl;
 
     @Column(name = "is_recruiting")
     @Builder.Default

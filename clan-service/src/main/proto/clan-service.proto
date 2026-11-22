@@ -9,6 +9,8 @@ option java_package = "com.squad.clan.grpc";
 service ClanService {
   rpc GetClanWithMembers (GetClanRequest) returns (GetClanResponse);
 
+  rpc GetAllClans (GetAllClansRequest) returns (GetAllClansResponse);
+
   rpc GetClanIdFromUserId (GetClanIdFromUserIdRequest) returns (GetClanIdFromUserIdResponse);
 
   rpc CreateClan (CreateClanRequest) returns (CreateClanResponse);
@@ -19,11 +21,9 @@ service ClanService {
 }
 
 
-message GetClanRequest {
-  string clan_id = 1;
-}
+// domain
 
-message GetClanResponse {
+message ClanDto {
   string id = 1;
   string name = 2;
   string tag = 3;
@@ -42,6 +42,45 @@ message ClanMemberDto {
   string id = 1;
   string user_id = 2;
   string role = 3; // LEADER, MODERATOR, MEMBER
+}
+
+message PageInfo {
+  int32 current_page = 1;
+  int32 rpp = 2;
+  int64 total_elements = 3;
+  int32 total_pages = 4;
+  bool has_next = 5;
+  bool has_previous = 6;
+}
+
+enum SortDirection {
+  SORT_DIRECTION_UNSPECIFIED = 0;
+  ASC = 1;
+  DESC = 2;
+}
+
+
+// getClanWithMembers
+message GetClanRequest {
+  string clan_id = 1;
+}
+
+message GetClanResponse {
+  ClanDto clan = 1;
+}
+
+
+// getAllClans
+message GetAllClansRequest {
+  int32 page = 1;
+  int32 rpp = 2;
+  string sortBy = 3;
+  string sortDir = 4;
+}
+
+message GetAllClansResponse {
+  repeated ClanDto clans = 1;
+  PageInfo page_info = 2;
 }
 
 

@@ -8,6 +8,8 @@ import com.squad.clan.entity.ClanMember;
 import com.squad.clan.service.ClanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -35,8 +37,8 @@ public class ClanFacade {
         return clanService.applyToClan(dto, userElo);
     }
 
-    public Clan getClanWithMembers(ClanRequests.GetClanDto dto) {
-        return clanService.getClanWithMembers(dto);
+    public Clan getClanWithMembers(UUID id) {
+        return clanService.getClanWithMembers(id);
     }
 
     public ClanMember acceptApplication(ClanRequests.AcceptApplicationDto dto) {
@@ -45,5 +47,9 @@ public class ClanFacade {
         int applicantElo = statsGrpcClient.getPlayerElo(applicantId);
 
         return clanService.processAcceptance(dto, applicantElo);
+    }
+
+    public Page<Clan> getAllClans(Pageable pageable) {
+        return clanService.getAllClans(pageable);
     }
 }

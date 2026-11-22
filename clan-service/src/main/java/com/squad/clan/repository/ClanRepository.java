@@ -1,6 +1,9 @@
 package com.squad.clan.repository;
 
 import com.squad.clan.entity.Clan;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +23,8 @@ public interface ClanRepository extends JpaRepository<Clan, UUID> {
 
     @EntityGraph(attributePaths = {"members"})
     Optional<Clan> findWithMembersById(UUID id);
+
+    @Override
+    Page<Clan> findAll(@NonNull Pageable pageable);
+
 }
