@@ -1,5 +1,8 @@
 package com.squad.gateway.controller;
 
+import com.squad.event.grpc.GetAllByStatusRequest;
+import com.squad.event.grpc.GetAllByStatusResponse;
+import com.squad.event.grpc.GetEventByIdResponse;
 import com.squad.gateway.model.dto.request.*;
 import com.squad.gateway.model.dto.response.TimelineEventHttpResponse;
 import com.squad.gateway.security.UserPrincipal;
@@ -14,12 +17,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/events")
+@RequestMapping("api/v1/event")
 @RequiredArgsConstructor
 public class EventController {
     private final EventGrpcClientService eventGrpcClientService;
@@ -27,7 +31,45 @@ public class EventController {
 
     // TODO getUpcomingEvents @GetMapping getEvent @GetMapping("/{eventId}")
 
-    @PostMapping
+    @GetMapping("/{eventId}")
+    public ResponseEntity<Map<String, Object>> getEventById(
+            @PathVariable String eventId) {
+
+        GetEventByIdResponse serviceResponse = eventGrpcClientService.getEventById(eventId);
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("content", serviceResponse.getEvent());
+
+        return new ResponseEntity<>(response, HttpStatus.FOUND);
+    }
+
+
+    @GetMapping("/list")
+    public ResponseEntity<Map<String, Object>> getAllEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int rpp,
+            @RequestParam(defaultValue = "DESC") String sortDir,
+            @RequestParam(defaultValue = "createdAt") String sortBy
+    ) {
+        GetAllByStatusRequest request = GetAllByStatusRequest.newBuilder()
+                .setPage(page)
+                .setRpp(rpp)
+                .setSortDir(sortDir)
+                .setSortBy(sortBy)
+                .build();
+
+        GetAllByStatusResponse serviceResponse = eventGrpcClientService.getAllEventsByStatus(request);
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("content", serviceResponse.getEventsList());
+        response.put("pageInfo", serviceResponse.getPageInfo());
+
+        return new ResponseEntity<>(response, HttpStatus.FOUND);
+    }
+
+    @PostMapping("/create")
     public ResponseEntity<Map<String, UUID>> createEvent(@Valid @RequestBody CreateEventHttpRequest request,
                                                         @AuthenticationPrincipal UserPrincipal userPrincipal) {
         UUID eventId = eventGrpcClientService.createEvent(request, userPrincipal.id());
@@ -46,7 +88,7 @@ public class EventController {
     }
 
 
-    @PatchMapping("/{eventId}/sides/{sideId}/ready")
+    @PatchMapping("/{eventId}/side/{sideId}/ready")
     public ResponseEntity<Void> updateSideReady(
             @PathVariable UUID eventId,
             @PathVariable UUID sideId,
@@ -59,7 +101,7 @@ public class EventController {
     }
 
 
-    @PutMapping("/{eventId}/matches/{matchId}/map-vote")
+    @PutMapping("/{eventId}/match/{matchId}/map-vote")
     public ResponseEntity<Void> mapVote(
             @PathVariable UUID eventId,
             @PathVariable UUID matchId,
@@ -71,7 +113,7 @@ public class EventController {
     }
 
 
-    @GetMapping("/{eventId}/matches/{matchId}/match-timeline")
+    @GetMapping("/{eventId}/match/{matchId}/match-timeline")
     public ResponseEntity<Map<String, List<TimelineEventHttpResponse>>> getMatchTimeline (
             @Valid @PathVariable UUID eventId,
             @Valid @PathVariable UUID matchId
@@ -83,7 +125,7 @@ public class EventController {
 
 
     @GetMapping(
-            value = "/{eventId}/matches/{matchId}/timeline/stream",
+            value = "/{eventId}/match/{matchId}/timeline/stream",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE
     )
     public SseEmitter streamMatchTimeline(

@@ -20,10 +20,27 @@ public class EventGrpcClientService {
     @GrpcClient("event-service")
     private EventServiceGrpc.EventServiceBlockingStub eventServiceBlockingStub;
 
+
+    public GetEventByIdResponse getEventById(String id) {
+        log.info("Received get event by id request");
+
+        GetEventByIdRequest request = GetEventByIdRequest.newBuilder()
+                .setId(id)
+                .build();
+
+        return eventServiceBlockingStub.getEventById(request);
+    }
+
+    public GetAllByStatusResponse getAllEventsByStatus(GetAllByStatusRequest request) {
+        log.info("Received get all events by status request");
+
+        return eventServiceBlockingStub.getAllByStatus(request);
+    }
+
     public UUID createEvent(CreateEventHttpRequest request, UUID creatorUserId) {
         log.info("Received create event request from user {}", creatorUserId);
 
-        CreateEventRequest grpcResuest = CreateEventRequest.newBuilder()
+        CreateEventRequest grpcRequest = CreateEventRequest.newBuilder()
                 .setName(request.name())
                 .setCreatorUserId(creatorUserId.toString())
                 .setSecondLeaderId(request.secondLeaderId().toString())
@@ -37,7 +54,7 @@ public class EventGrpcClientService {
                 .setEnemySideName(request.enemySideName())
                 .build();
 
-        CreateEventResponse response = eventServiceBlockingStub.createEvent(grpcResuest);
+        CreateEventResponse response = eventServiceBlockingStub.createEvent(grpcRequest);
         return UUID.fromString(response.getEventId());
     }
 
