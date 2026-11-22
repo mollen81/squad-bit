@@ -40,6 +40,22 @@ public class ClanGrpcClientService {
         }
     }
 
+    public GetAllClansResponse getAllClans(int page, int rpp, String sortDir, String sortBy) {
+        try {
+            GetAllClansRequest request = GetAllClansRequest.newBuilder()
+                    .setPage(page)
+                    .setRpp(rpp)
+                    .setSortDir(sortDir)
+                    .setSortBy(sortBy)
+                    .build();
+
+            return clanStub.getAllClans(request);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Get all clans request could not be processed: " + e.getMessage(), e);
+        }
+    }
+
     public ApplyToClanResponse applyToClan(String userId, String clanId, String socialLink, String experienceText) {
         try {
             ApplyToClanRequest request = ApplyToClanRequest.newBuilder()
