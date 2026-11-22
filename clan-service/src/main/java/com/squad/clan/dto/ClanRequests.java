@@ -39,12 +39,6 @@ public class ClanRequests {
         private String experienceText;
     }
 
-    @Data
-    @Builder
-    public static class GetClanDto {
-        private UUID clanId;
-    }
-
     @Builder
     public record AcceptApplicationDto(
         UUID applicationId,

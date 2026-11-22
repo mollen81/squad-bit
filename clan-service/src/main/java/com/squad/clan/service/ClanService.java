@@ -12,6 +12,8 @@ import com.squad.clan.repository.ClanMemberRepository;
 import com.squad.clan.repository.ClanRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +43,7 @@ public class ClanService {
                 .tag(dto.getTag())
                 .description(dto.getDescription())
                 .requirements(dto.getRequirements())
-                .avatar_url(dto.getAvatarUrl())
+                .avatarUrl(dto.getAvatarUrl())
                 .status(ClanStatus.UNVERIFIED)
                 .totalElo(leaderElo)
                 .build();
@@ -117,8 +119,8 @@ public class ClanService {
 
 
     @Transactional(readOnly = true)
-    public Clan getClanWithMembers(ClanRequests.GetClanDto dto) {
-        Clan clan = clanRepository.findWithMembersById(dto.getClanId())
+    public Clan getClanWithMembers(UUID id) {
+        Clan clan = clanRepository.findWithMembersById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Clan is not found"));
 
         log.info("Clan: {} is successfully fetched", clan.getName());
@@ -180,5 +182,17 @@ public class ClanService {
         log.info("Application: {} accepted. User: {} joined clan: {}. New total ELO: {}",
                 clanApplication.getId(), newMember.getUserId(), clan.getName(), clan.getTotalElo());
         return newMember;
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<Clan> getAllClans(Pageable pageable) {
+        Page<Clan> clanPage = clanRepository.findAll(pageable);
+        if(clanPage.isEmpty()) {
+            throw new IllegalArgumentException("Clan page not found");
+        }
+
+        log.info("Clan page is successfully fetched");
+        return clanRepository.findAll(pageable);
     }
 }
