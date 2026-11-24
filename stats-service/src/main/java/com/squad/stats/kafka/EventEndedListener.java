@@ -1,7 +1,7 @@
 package com.squad.stats.kafka;
 
 import com.squad.stats.dto.EventEndedEvent;
-import com.squad.stats.service.EventResultsProcessingService;
+import com.squad.stats.client.event.EventResultsProcessingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

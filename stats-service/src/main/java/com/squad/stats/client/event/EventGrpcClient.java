@@ -1,4 +1,4 @@
-package com.squad.stats.service;
+package com.squad.stats.client.event;
 
 import com.squad.stats.grpc.*;
 import lombok.RequiredArgsConstructor;

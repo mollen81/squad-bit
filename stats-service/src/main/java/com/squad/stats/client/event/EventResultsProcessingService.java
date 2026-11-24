@@ -1,9 +1,10 @@
-package com.squad.stats.service;
+package com.squad.stats.client.event;
 
 import com.squad.stats.dto.UserStats;
 import com.squad.stats.grpc.Team;
 import com.squad.stats.grpc.TeamMember;
 import com.squad.stats.repository.UserStatsRepository;
+import com.squad.stats.service.EloCalculationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
