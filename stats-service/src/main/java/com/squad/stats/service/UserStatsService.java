@@ -31,7 +31,7 @@ public class UserStatsService {
     public Page<UserStats> getUserStatsLeaderboard(Pageable pageable) {
         log.info("Fetching global user stats leaderboard");
 
-        Page<UserStats> leaderboardPage = userStatsRepository.findAllBy(pageable);
+        Page<UserStats> leaderboardPage = userStatsRepository.findAll(pageable);
 
         if(leaderboardPage.isEmpty()) {
             throw new IllegalArgumentException("User stats leaderboard page is not found");
@@ -42,9 +42,15 @@ public class UserStatsService {
 
 
     @Transactional(readOnly = true)
-    public Page<UserStats> getClanUserStatsLeaderBoard(UUID clanId, Pageable pageable) {
+    public Page<UserStats> getUserStatsByClanId(UUID clanId, Pageable pageable) {
         log.info("Fetching clan {} user stats leaderboard", clanId);
 
+        Page<UserStats> clanUserStatsPage = userStatsRepository.findAllByClanId(clanId, pageable);
 
+        if(clanUserStatsPage.isEmpty()) {
+            throw new IllegalArgumentException("User stats page for clanId " + clanId + " is empty");
+        }
+
+        return clanUserStatsPage;
     }
 }

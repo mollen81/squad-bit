@@ -15,11 +15,11 @@ public interface UserStatsRepository extends JpaRepository<UserStats, UUID> {
     @Override
     Optional<UserStats> findById(@NonNull UUID id);
 
-    Optional<UserStats> findBySteamId(String steamId);
-
     Optional<UserStats> findByUserId(UUID id);
 
-    Page<UserStats> findAllBy(Pageable pageable);
+    @Override
+    Page<UserStats> findAll(@NonNull Pageable pageable);
 
-    Page<UserStats> findAllBy
+
+    Page<UserStats> findAllByClanId(@NonNull UUID clanId, @NonNull Pageable pageable);
 }

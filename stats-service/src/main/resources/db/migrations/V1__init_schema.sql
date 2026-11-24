@@ -1,12 +1,12 @@
 CREATE TABLE user_stats (
     user_id UUID PRIMARY KEY,
     clan_id UUID,
-    elo_rating INT DEFAULT 1000,
-    matches_played INT DEFAULT 0,
-    total_playtime_hours INT DEFAULT 0,
-    kills INT DEFAULT 0,
-    deaths INT DEFAULT 0,
-    revives INT DEFAULT 0,
+    elo_rating INTEGER DEFAULT 1000,
+    matches_played INTEGER DEFAULT 0,
+    total_playtime_hours INTEGER DEFAULT 0,
+    kills INTEGER DEFAULT 0,
+    deaths INTEGER DEFAULT 0,
+    revives INTEGER DEFAULT 0,
     vehicles_destroyed INTEGER DEFAULT 0,
     favourite_role VARCHAR(50),
     last_updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -17,6 +17,12 @@ CREATE INDEX idx_user_stats_elo_rating ON user_stats(elo_rating)
 
 
 CREATE TABLE clan_stats (
+    clan_id UUID PRIMARY KEY,
+    total_elo_rating INTEGER NOT NULL,
+    avg_elo_rating INTEGER NOT NULL,
+    median_elo_rating INTEGER NOT NULL,
+    max_elo_rating INTEGER NOT NULL,
+    max_elo_rating_event_id INTEGER NOT NULL,
 
 )
 
