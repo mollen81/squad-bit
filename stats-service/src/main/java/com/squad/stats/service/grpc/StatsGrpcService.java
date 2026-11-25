@@ -5,6 +5,7 @@ import com.squad.stats.grpc.GetPlayerStatsByInternalIdRequest;
 import com.squad.stats.grpc.GetPlayerStatsResponse;
 import com.squad.stats.grpc.StatsServiceGrpc;
 import com.squad.stats.repository.UserStatsRepository;
+import com.squad.stats.service.UserStatsService;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class StatsGrpcService extends StatsServiceGrpc.StatsServiceImplBase {
-    private final UserStatsRepository userStatsRepository;
+    private final UserStatsService userStatsService;
 
     @Override
     public void getPlayerStats(GetPlayerStatsByInternalIdRequest request, StreamObserver<GetPlayerStatsResponse> responseObserver) {
@@ -27,17 +28,7 @@ public class StatsGrpcService extends StatsServiceGrpc.StatsServiceImplBase {
         try {
             UUID userId = UUID.fromString(request.getUserId());
 
-            Optional<UserStats> statsOpt = userStatsRepository.findById(userId);
-
-            if(statsOpt.isEmpty()) {
-                log.warn("Statistics for userId: {} is not found yet (in process...)", userId);
-                responseObserver.onError(Status.NOT_FOUND
-                                .withDescription("Statistics not yet processed or user not found")
-                                .asRuntimeException());
-                return;
-            }
-
-            UserStats userStats = statsOpt.get();
+            UserStats userStats = userStatsService.getUserStats(UUID.fromString(request.getUserId()));
 
             GetPlayerStatsResponse response = GetPlayerStatsResponse.newBuilder()
                     .setEloRating(userStats.getEloRating())
