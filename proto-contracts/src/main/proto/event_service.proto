@@ -12,10 +12,10 @@ import "google/protobuf/empty.proto";
 service EventService {
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
   rpc JoinEvent(JoinEventRequest) returns (JoinEventResponse);
-  rpc UpdateSideReady(UpdateSideReadyRequest) returns (google.protobuf.Empty);
-  rpc MapVote(MapVoteRequest) returns (google.protobuf.Empty);
+  rpc UpdateSideReady(UpdateSideReadyRequest) returns (UpdateSideReadyResponse);
+  rpc MapVote(MapVoteRequest) returns (MapVoteResponse);
   rpc GetMatchTimeline(GetMatchTimelineRequest) returns (GetMatchTimelineResponse);
-  rpc StreamMatchTimeline(StreamMatchTimelineRequest) returns (stream TimelineEvent);
+  rpc StreamMatchTimeline(StreamMatchTimelineRequest) returns (stream StreamMatchTimelineResponse);
   rpc GetAllByStatus(GetAllByStatusRequest) returns (GetAllByStatusResponse);
   rpc GetEventById(GetEventByIdRequest) returns (GetEventByIdResponse);
 }
@@ -45,42 +45,42 @@ message PageInfo {
 
 enum SortDirection {
   SORT_DIRECTION_UNSPECIFIED = 0;
-  ASC = 1;
-  DESC = 2;
+  SORT_DIRECTION_ASC = 1;
+  SORT_DIRECTION_DESC = 2;
 }
 
 enum EventStatus {
-  DRAFT = 0;
-  REGISTRATION = 1;
-  PREPARING = 2;
-  LIVE = 3;
-  FINISHED = 4;
-  CANCELED = 5;
+  DRAFT_UNSPECIFIED = 0;
+  EVENT_STATUS_REGISTRATION = 1;
+  EVENT_STATUS_PREPARING = 2;
+  EVENT_STATUS_LIVE = 3;
+  EVENT_STATUS_FINISHED = 4;
+  EVENT_STATUS_CANCELED = 5;
 }
 
 enum EventGameMode {
-  RAAS = 0;
-  AAS = 1;
-  INVASION = 2;
-  SKIRMISH = 3;
+  EVENT_GAME_MODE_RAAS = 0;
+  EVENT_GAME_MODE_AAS = 1;
+  EVENT_GAME_MODE_INVASION = 2;
+  EVENT_GAME_MODE_SKIRMISH = 3;
 }
 
 message TimelineEvent {
   string id = 1;
   string match_id = 2;
-  string timelineEventType = 3;
+  string timeline_event_type = 3;
   int32 game_time_seconds = 4;
   string payload = 5;
   uint64 created_at = 6;
 }
 
 enum TimelineEventType {
-  KILL = 0;
-  REVIVE = 1;
-  VEHICLE_DESTROYED = 2;
-  FLAG_CAPTURED = 3;
-  FOB_DESTROYED = 4;
-  TICKETS_UPDATE = 5;
+  TIMELINE_EVENT_TYPE_KILL = 0;
+  TIMELINE_EVENT_TYPE_REVIVE = 1;
+  TIMELINE_EVENT_TYPE_VEHICLE_DESTROYED = 2;
+  TIMELINE_EVENT_TYPE_FLAG_CAPTURED = 3;
+  TIMELINE_EVENT_TYPE_FOB_DESTROYED = 4;
+  TIMELINE_EVENT_TYPE_TICKETS_UPDATE = 5;
 }
 
 
@@ -91,9 +91,9 @@ message CreateEventRequest {
   string name = 1;
   string creator_user_id = 2;
   string second_leader_id = 3;
-  int32 targetGameCount = 4;
+  int32 target_game_count = 4;
   google.protobuf.Timestamp time_start = 5;
-  EventGameMode gameMode = 6;
+  EventGameMode game_mode = 6;
   string creator_side_name = 7;
   string enemy_side_name = 8;
 }
@@ -120,7 +120,11 @@ message UpdateSideReadyRequest {
   string event_id = 1;
   string side_id = 2;
   string user_id = 3;
-  bool isReady = 4;
+  bool is_ready = 4;
+}
+
+message UpdateSideReadyResponse {
+  string message = 1;
 }
 
 
@@ -132,6 +136,10 @@ message MapVoteRequest {
   string layer = 4;
 }
 
+message MapVoteResponse {
+  string message = 1;
+}
+
 
 // getMatchTimeline method request data -> method for event participants to get match timeline events history
 message GetMatchTimelineRequest {
@@ -140,14 +148,18 @@ message GetMatchTimelineRequest {
 }
 
 message GetMatchTimelineResponse {
-  repeated TimelineEvent timelineMatchEvents = 1;
+  repeated TimelineEvent timeline_events = 1;
 }
 
 
 // streamMatchTimeline
 message StreamMatchTimelineRequest {
   string event_id = 1;
-  string matchId = 2;
+  string match_id = 2;
+}
+
+message StreamMatchTimelineResponse {
+    TimelineEvent timeline_event = 1;
 }
 
 
@@ -156,8 +168,8 @@ message GetAllByStatusRequest {
   string status = 1;
   int32 page = 2;
   int32 rpp = 3;
-  string sortBy = 4;
-  string sortDir = 5;
+  string sort_by = 4;
+  string sort_dir = 5;
 }
 
 message GetAllByStatusResponse {
@@ -173,20 +185,4 @@ message GetEventByIdRequest {
 
 message GetEventByIdResponse {
   EventDto event = 1;
-}
-
-
-/*
-  CLAN-SERVICE
- */
-service ClanService {
-  rpc GetClanIdFromUserId (GetClanIdFromUserIdRequest) returns (GetClanIdFromUserIdResponse);
-}
-
-message GetClanIdFromUserIdRequest {
-  string userId = 1;
-}
-
-message GetClanIdFromUserIdResponse {
-  string clanId = 1;
 }
