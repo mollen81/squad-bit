@@ -6,7 +6,6 @@ option java_multiple_files = true;
 option java_package = "com.squad.event.grpc";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 
 service EventService {
@@ -50,19 +49,21 @@ enum SortDirection {
 }
 
 enum EventStatus {
-  DRAFT_UNSPECIFIED = 0;
-  EVENT_STATUS_REGISTRATION = 1;
-  EVENT_STATUS_PREPARING = 2;
-  EVENT_STATUS_LIVE = 3;
-  EVENT_STATUS_FINISHED = 4;
-  EVENT_STATUS_CANCELED = 5;
+  EVENT_STATUS_UNSPECIFIED = 0;
+  EVENT_STATUS_DRAFT = 1;
+  EVENT_STATUS_REGISTRATION = 2;
+  EVENT_STATUS_PREPARING = 3;
+  EVENT_STATUS_LIVE = 4;
+  EVENT_STATUS_FINISHED = 5;
+  EVENT_STATUS_CANCELED = 6;
 }
 
 enum EventGameMode {
-  EVENT_GAME_MODE_RAAS = 0;
-  EVENT_GAME_MODE_AAS = 1;
-  EVENT_GAME_MODE_INVASION = 2;
-  EVENT_GAME_MODE_SKIRMISH = 3;
+  EVENT_GAME_MODE_UNSPECIFIED = 0;
+  EVENT_GAME_MODE_RAAS = 1;
+  EVENT_GAME_MODE_AAS = 2;
+  EVENT_GAME_MODE_INVASION = 3;
+  EVENT_GAME_MODE_SKIRMISH = 4;
 }
 
 message TimelineEvent {

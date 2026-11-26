@@ -6,12 +6,11 @@ option java_multiple_files = true;
 option java_package = "com.squad.stats.grpc";
 
 
-
 service StatsService {
-  rpc GetPlayerStats (GetPlayerStatsByInternalIdRequest) returns (GetPlayerStatsResponse);
+  rpc GetPlayerStats (GetPlayerStatsRequest) returns (GetPlayerStatsResponse);
 }
 
-message GetPlayerStatsByInternalIdRequest {
+message GetPlayerStatsRequest {
   string user_id = 1;
 }
 
