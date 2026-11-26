@@ -7,7 +7,6 @@ option java_package = "com.squad.event.grpc";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-import "google/protobuf/struct.proto";
 
 
 service EventService {
