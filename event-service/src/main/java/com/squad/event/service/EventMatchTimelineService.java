@@ -25,7 +25,7 @@ public class EventMatchTimelineService {
 
     @Transactional
     public void processTimelineEvent(EventMatchTimelineEvent event) {
-        EventMatch eventMatch = eventMatchRepository.findByEventIdAndMatchId(
+        EventMatch eventMatch = eventMatchRepository.findByEventIdAndId(
                         event.eventId(), event.matchId())
                 .orElseThrow(() -> new IllegalArgumentException("Match " + event.matchId() +
                         " for event " + event.eventId() + " is not found"));
@@ -48,7 +48,7 @@ public class EventMatchTimelineService {
 
     @Transactional
     public List<TimelineEvent> getMatchTimelineHistory(UUID eventId, UUID matchId) {
-        EventMatch eventMatch = eventMatchRepository.findByEventIdAndMatchId(eventId, matchId)
+        EventMatch eventMatch = eventMatchRepository.findByEventIdAndId(eventId, matchId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Match " + matchId + " not found for eventId " + eventId));
         return eventMatchTimelineRepository.findAllByMatchIdOrderByTime(eventMatch.getId());

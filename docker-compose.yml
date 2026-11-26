@@ -157,17 +157,6 @@ services:
       - CLAN_SERVICE_GRPC_PORT=${CLAN_SERVICE_GRPC_PORT}
     restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - gateway
-    restart: unless-stopped
-
   clan-service:
     build:
       context: .

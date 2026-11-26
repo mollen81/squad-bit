@@ -1,8 +1,4 @@
-plugins {
-    id 'com.google.protobuf' version '0.9.4'
-}
-
-group = 'com.squad'
+group = 'com.squadbit.event'
 version = '0.0.1'
 
 repositories {
@@ -10,6 +6,8 @@ repositories {
 }
 
 dependencies {
+    implementation project(':proto-contracts')
+
     // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
@@ -30,24 +28,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
 
     // Passay password generator
-    // Source: https://mvnrepository.com/artifact/org.passay/passay
     implementation 'org.passay:passay:2.0.0'
-}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.25.3"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.62.2"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
 }
 
 jar {

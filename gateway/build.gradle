@@ -1,6 +1,5 @@
-plugins {
-    id 'com.google.protobuf' version '0.9.4'
-}
+group = "com.squadbit.gateway"
+version = "0.0.1"
 
 repositories {
     mavenCentral()
@@ -27,41 +26,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-core'
 
     // gRPC server
+    implementation project(':proto-contracts')
     implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
     implementation 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
-    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
-}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.25.3"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.62.2"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs 'build/generated/source/proto/main/grpc'
-            srcDirs 'build/generated/source/proto/main/java'
-        }
-        proto {
-            srcDir '../user-service/src/main/proto'
-            srcDir '../stats-service/src/main/proto'
-            srcDir '../clan-service/src/main/proto'
-            srcDir '../event-service/src/main/proto'
-        }
-    }
 }
 
 test {

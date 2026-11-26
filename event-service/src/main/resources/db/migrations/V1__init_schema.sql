@@ -13,7 +13,7 @@ CREATE TABLE event (
 CREATE INDEX idx_event_creator_user_id ON event(creator_user_id);
 CREATE INDEX idx_event_time_start ON event(time_start);
 CREATE INDEX idx_event_created_at ON event(created_at);
-CREATE INDEX idx_event_created_at ON event(game_mode);
+CREATE INDEX idx_event_game_mode ON event(game_mode);
 
 
 CREATE TABLE event_side (
