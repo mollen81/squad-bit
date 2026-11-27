@@ -1,6 +1,6 @@
 package com.squad.gateway.service.stats;
 
-import com.squad.stats.grpc.GetPlayerStatsByInternalIdRequest;
+import com.squad.stats.grpc.GetPlayerStatsRequest;
 import com.squad.stats.grpc.GetPlayerStatsResponse;
 import com.squad.stats.grpc.StatsServiceGrpc;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class StatsGrpcClientService {
 
     public GetPlayerStatsResponse getPlayerStats(String userId) {
         try {
-            GetPlayerStatsByInternalIdRequest request = GetPlayerStatsByInternalIdRequest.newBuilder()
+            GetPlayerStatsRequest request = GetPlayerStatsRequest.newBuilder()
                     .setUserId(userId)
                     .build();
             return statsServiceBlockingStub.getPlayerStats(request);

@@ -1,6 +1,6 @@
-import com.squad.grpc.user.ResolveSteamAuthRequest;
-import com.squad.grpc.user.ResolveSteamAuthResponse;
-import com.squad.user.domain.UserEntity;
+import com.squad.user.grpc.ResolveSteamAuthRequest;
+import com.squad.user.grpc.ResolveSteamAuthResponse;
+import com.squad.user.domain.User;
 import com.squad.user.event.UserRegisteredEvent;
 import com.squad.user.kafka.UserEventProducer;
 import com.squad.user.repository.UserRepository;
@@ -38,7 +38,7 @@ public class AuthGrpcServiceTest {
     UserRepository userRepo;
 
     @Mock
-    StreamObserver<ResolveSteamAuthResponse> responseObserver;
+    StreamObserver<com.squad.user.grpc.ResolveSteamAuthResponse> responseObserver;
 
     @Mock
     UserEventProducer userEventProducer;
@@ -63,15 +63,15 @@ public class AuthGrpcServiceTest {
         when(steamValidator.validateAndExtractSteamId(anyMap())).thenReturn(VALID_STEAM_ID);
         when(userRepo.findBySteamId(VALID_STEAM_ID)).thenReturn(Optional.empty());
 
-        UserEntity savedUser = UserEntity.builder()
+        User savedUser = User.builder()
                 .id(UUID.randomUUID())
                 .steamId(VALID_STEAM_ID)
                 .build();
-        when(userRepo.save(any(UserEntity.class))).thenReturn(savedUser);
+        when(userRepo.save(any(User.class))).thenReturn(savedUser);
 
         authGrpcService.resolveSteamAuth(request, responseObserver);
 
-        verify(userRepo, times(1)).save(any(UserEntity.class));
+        verify(userRepo, times(1)).save(any(User.class));
         verify(userEventProducer, times(1)).sendUserRegisteredEvent(any(UserRegisteredEvent.class));
 
         verify(responseObserver).onNext(responseCaptor.capture());
@@ -87,13 +87,13 @@ public class AuthGrpcServiceTest {
     @Test
     public void resolveSteamAuth_ExistingUser_UpdatesLoginTime() {
         when(steamValidator.validateAndExtractSteamId(anyMap())).thenReturn(VALID_STEAM_ID);
-        UserEntity existingUser = UserEntity.builder()
+        User existingUser = User.builder()
                 .id(UUID.randomUUID())
                 .steamId(VALID_STEAM_ID)
                 .build();
         when(userRepo.findBySteamId(VALID_STEAM_ID)).thenReturn(Optional.of(existingUser));
 
-        when(userRepo.save(any(UserEntity.class))).thenReturn(existingUser);
+        when(userRepo.save(any(User.class))).thenReturn(existingUser);
 
         authGrpcService.resolveSteamAuth(request, responseObserver);
 

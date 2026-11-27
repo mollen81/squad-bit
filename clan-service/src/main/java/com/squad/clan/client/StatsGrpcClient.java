@@ -1,6 +1,6 @@
 package com.squad.clan.client;
 
-import com.squad.stats.grpc.GetPlayerStatsByInternalIdRequest;
+import com.squad.stats.grpc.GetPlayerStatsRequest;
 import com.squad.stats.grpc.GetPlayerStatsResponse;
 import com.squad.stats.grpc.StatsServiceGrpc;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class StatsGrpcClient {
 
     public int getPlayerElo(UUID userId) {
         try {
-            GetPlayerStatsByInternalIdRequest request = GetPlayerStatsByInternalIdRequest.newBuilder()
+            GetPlayerStatsRequest request = GetPlayerStatsRequest.newBuilder()
                     .setUserId(userId.toString())
                     .build();
 

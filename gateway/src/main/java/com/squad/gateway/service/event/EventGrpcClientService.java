@@ -107,7 +107,7 @@ public class EventGrpcClientService {
                 .setMatchId(matchId.toString())
                 .build();
 
-        return eventServiceBlockingStub.getMatchTimeline(grpcRequest).getTimelineMatchEventsList()
+        return eventServiceBlockingStub.getMatchTimeline(grpcRequest).getTimelineEventsList()
                 .stream()
                 .map(grpcEvent -> new TimelineEventHttpResponse(
                         UUID.fromString(grpcEvent.getId()),

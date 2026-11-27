@@ -1,4 +1,4 @@
-package com.squad.event.grpc;
+package com.squad.event.grpcs;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;

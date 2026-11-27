@@ -22,7 +22,7 @@ import java.util.UUID;
 @GrpcService
 @Slf4j
 @RequiredArgsConstructor
-public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanServiceImplBase {
+public class ClanGrpcService extends ClanServiceGrpc.ClanServiceImplBase {
 
     private final ClanFacade clanFacade;
 
@@ -98,14 +98,14 @@ public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanSer
 
 
     @Override
-    public void getClanWithMembers(GetClanRequest request, StreamObserver<GetClanResponse> responseObserver) {
+    public void getClanWithMembers(GetClanWithMembersRequest request, StreamObserver<GetClanWithMembersResponse> responseObserver) {
         log.info("Requesting information about clan with clanId: {}", request.getClanId());
         try {
             UUID clanId = UUID.fromString(request.getClanId());
 
             Clan clan = clanFacade.getClanWithMembers(clanId);
 
-            GetClanResponse response = mapToClanWithMembersResponse(clan);
+            GetClanWithMembersResponse response = mapToClanWithMembersResponse(clan);
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -235,10 +235,10 @@ public class ClanGrpcService extends com.squad.clan.grpc.ClanServiceGrpc.ClanSer
 
 
     // MAPPERS
-    private GetClanResponse mapToClanWithMembersResponse(Clan clan) {
+    private GetClanWithMembersResponse mapToClanWithMembersResponse(Clan clan) {
         ClanDto clanDto = mapToClanDto(clan);
 
-        return GetClanResponse.newBuilder()
+        return GetClanWithMembersResponse.newBuilder()
                 .setClan(clanDto)
                 .build();
     }

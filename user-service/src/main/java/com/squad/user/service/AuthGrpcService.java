@@ -1,10 +1,8 @@
 package com.squad.user.service;
 
-import com.squad.grpc.user.AuthServiceGrpc;
-import com.squad.grpc.user.ResolveSteamAuthRequest;
-import com.squad.grpc.user.ResolveSteamAuthResponse;
+import com.squad.user.grpc.*;
 import com.squad.user.client.SteamWebApiClient;
-import com.squad.user.domain.UserEntity;
+import com.squad.user.domain.User;
 import com.squad.user.event.UserRegisteredEvent;
 import com.squad.user.kafka.UserEventProducer;
 import com.squad.user.repository.UserRepository;
@@ -14,10 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @GrpcService
 @Slf4j
@@ -31,12 +27,12 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
     private final UserEventProducer userEventProducer;
 
     @Override
-    public void resolveSteamAuth(ResolveSteamAuthRequest request, StreamObserver<ResolveSteamAuthResponse> responseObserver) {
+    public void resolveSteamAuth(com.squad.user.grpc.ResolveSteamAuthRequest request, StreamObserver<ResolveSteamAuthResponse> responseObserver) {
         try {
             String steamId = steamOpenIdValidator.validateAndExtractSteamId(request.getOpenidParamsMap());
 
-            Optional<UserEntity> userOpt = userRepository.findBySteamId(steamId);
-            UserEntity user;
+            Optional<User> userOpt = userRepository.findBySteamId(steamId);
+            User user;
             boolean isNewUser = false;
 
             // SteamApi
@@ -44,7 +40,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
             if (userOpt.isEmpty()) {
                 // Registration
-                user = UserEntity.builder()
+                user = User.builder()
                         .steamId(steamId)
                         .displayName(profile.displayName())
                         .avatarUrl(profile.avatarUrl())

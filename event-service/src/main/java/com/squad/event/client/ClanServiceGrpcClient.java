@@ -1,7 +1,8 @@
 package com.squad.event.client;
 
-import com.squad.event.grpc.ClanServiceGrpc;
-import com.squad.event.grpc.GetClanIdFromUserIdRequest;
+import com.squad.clan.grpc.ClanServiceGrpc;
+import com.squad.clan.grpc.GetClanIdFromUserIdRequest;
+import com.squad.event.grpc.*;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;

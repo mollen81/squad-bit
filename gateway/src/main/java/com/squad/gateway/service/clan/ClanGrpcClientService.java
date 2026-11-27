@@ -28,9 +28,9 @@ public class ClanGrpcClientService {
         }
     }
 
-    public GetClanResponse getClanWithMembers(String clanId) {
+    public GetClanWithMembersResponse getClanWithMembers(String clanId) {
         try {
-            GetClanRequest request = GetClanRequest.newBuilder()
+            GetClanWithMembersRequest request = GetClanWithMembersRequest.newBuilder()
                     .setClanId(clanId)
                     .build();
             return clanStub.getClanWithMembers(request);

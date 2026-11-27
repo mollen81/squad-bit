@@ -1,7 +1,7 @@
 package com.squad.event.service;
 
 import com.squad.event.client.ClanServiceGrpcClient;
-import com.squad.event.grpc.GrpcTimelineStreamManager;
+import com.squad.event.grpcs.GrpcTimelineStreamManager;
 import com.squad.event.kafka.event.*;
 import com.squad.event.kafka.producer.EventKafkaProducer;
 import com.squad.event.model.domain.*;

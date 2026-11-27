@@ -1,6 +1,6 @@
 package com.squad.event.service;
 
-import com.squad.event.grpc.GrpcTimelineStreamManager;
+import com.squad.event.grpcs.GrpcTimelineStreamManager;
 import com.squad.event.kafka.event.EventMatchTimelineEvent;
 import com.squad.event.model.domain.EventMatch;
 import com.squad.event.model.domain.TimelineEvent;
