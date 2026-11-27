@@ -1,7 +1,7 @@
 package com.squad.stats.service;
 
 import com.squad.stats.dto.UserStats;
-import com.squad.stats.grpc.GetPlayerStatsByInternalIdRequest;
+import com.squad.stats.grpc.GetPlayerStatsRequest;
 import com.squad.stats.grpc.GetPlayerStatsResponse;
 import com.squad.stats.grpc.StatsServiceGrpc;
 import com.squad.stats.repository.UserStatsRepository;
@@ -21,7 +21,7 @@ public class StatsGrpcService extends StatsServiceGrpc.StatsServiceImplBase {
     private final UserStatsRepository userStatsRepository;
 
     @Override
-    public void getPlayerStats(GetPlayerStatsByInternalIdRequest request, StreamObserver<GetPlayerStatsResponse> responseObserver) {
+    public void getPlayerStats(GetPlayerStatsRequest request, StreamObserver<GetPlayerStatsResponse> responseObserver) {
         log.info("New gRPC statistics query for userId: {}", request.getUserId());
 
         try {

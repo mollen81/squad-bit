@@ -1,6 +1,6 @@
 package com.squad.gateway.controller;
 
-import com.squad.grpc.user.ResolveSteamAuthResponse;
+import com.squad.user.grpc.ResolveSteamAuthResponse;
 import com.squad.gateway.service.user.AuthGrpcClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -5,14 +5,12 @@ package com.squad.stats.grpc;
 option java_multiple_files = true;
 option java_package = "com.squad.stats.grpc";
 
-import "google/protobuf/timestamp.proto";
-
 
 service StatsService {
-  rpc GetPlayerStats (GetPlayerStatsByInternalIdRequest) returns (GetPlayerStatsResponse);
+  rpc GetPlayerStats (GetPlayerStatsRequest) returns (GetPlayerStatsResponse);
 }
 
-message GetPlayerStatsByInternalIdRequest {
+message GetPlayerStatsRequest {
   string user_id = 1;
 }
 

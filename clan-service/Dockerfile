@@ -8,12 +8,13 @@ COPY gradle ./gradle
 COPY settings.gradle .
 COPY build.gradle .
 
+# Сначала копируем общий модуль контрактов и сам сервис
+COPY proto-contracts/build.gradle ./proto-contracts/
+COPY proto-contracts/src ./proto-contracts/src
+
 # 2. Копируем конфигурацию и исходный код именно clan-service
 COPY clan-service/build.gradle ./clan-service/
 COPY clan-service/src ./clan-service/src
-
-COPY stats-service/build.gradle ./stats-service/
-COPY stats-service/src ./stats-service/src
 
 # 3. Собираем только user-service
 RUN ./gradlew :clan-service:clean :clan-service:build -x test --no-daemon

@@ -9,7 +9,6 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -17,12 +16,22 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        default_schema: public
         format_sql: true
+    user: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    defaultSchema: public
+
 
   flyway:
     enabled: true
+    schemas: public
+    table: flyway_schema_history_users
+    locations: 'classpath:db/migrations'
     baseline-on-migrate: true
     repair-on-migrate: false
+    baseline-version: '0'
+    clean-disabled: true
 
   data:
     redis:

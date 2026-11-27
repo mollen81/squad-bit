@@ -8,12 +8,13 @@ COPY gradle ./gradle
 COPY settings.gradle .
 COPY build.gradle .
 
+# Сначала копируем общий модуль контрактов и сам сервис
+COPY proto-contracts/build.gradle ./proto-contracts/
+COPY proto-contracts/src ./proto-contracts/src
+
 # Копируем исходный код и собираем проект
 COPY event-service/build.gradle ./event-service/
 COPY event-service/src ./event-service/src
-
-COPY clan-service/build.gradle ./clan-service/
-COPY clan-service/src ./clan-service/src
 
 RUN ./gradlew :event-service:clean :event-service:build -x test --no-daemon
 

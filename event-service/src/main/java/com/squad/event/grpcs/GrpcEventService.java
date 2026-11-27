@@ -1,6 +1,7 @@
-package com.squad.event.grpc;
+package com.squad.event.grpcs;
 
-import com.google.protobuf.Empty;
+import com.squad.event.grpc.*;
+
 import com.google.protobuf.Timestamp;
 import com.squad.event.model.domain.Event;
 import com.squad.event.model.domain.TimelineEvent;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,7 +82,7 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
     }
 
     @Override
-    public void updateSideReady(UpdateSideReadyRequest request, StreamObserver<Empty> responseStreamObserver) {
+    public void updateSideReady(UpdateSideReadyRequest request, StreamObserver<UpdateSideReadyResponse> responseStreamObserver) {
         log.info("Starting to process gRPC setSideReady request: event {}, side {}, user {}",
         request.getEventId(), request.getSideId(), request.getUserId());
 
@@ -94,8 +94,11 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
         );
 
         eventService.setSideReady(externalRequest);
+        UpdateSideReadyResponse response = UpdateSideReadyResponse.newBuilder()
+                .setMessage("Side ready status updated to " + request.getIsReady())
+                .build();
 
-        responseStreamObserver.onNext(Empty.getDefaultInstance());
+        responseStreamObserver.onNext(response);
         responseStreamObserver.onCompleted();
 
         log.info("gRPC setSideReady request from user {} to event {} is processed",
@@ -103,7 +106,7 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
     }
 
     @Override
-    public void mapVote(MapVoteRequest request, StreamObserver<Empty> responseStreamObserver) {
+    public void mapVote(MapVoteRequest request, StreamObserver<MapVoteResponse> responseStreamObserver) {
         log.info("Starting to process gRPC mapVote request from user {}, to match {}, vote layer {}",
                 request.getUserId(), request.getMatchId(), request.getLayer());
 
@@ -116,7 +119,11 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
 
         eventService.mapVote(externalRequest);
 
-        responseStreamObserver.onNext(Empty.getDefaultInstance());
+        MapVoteResponse response = MapVoteResponse.newBuilder()
+                .setMessage("Map vote is processed")
+                .build();
+
+        responseStreamObserver.onNext(response);
         responseStreamObserver.onCompleted();
 
         log.info("gRPC mapVote request from user {} to match {}, layer {} is processed",
@@ -141,7 +148,7 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
                 .toList();
 
         GetMatchTimelineResponse response = GetMatchTimelineResponse.newBuilder()
-                .addAllTimelineMatchEvents(grpcEvents)
+                .addAllTimelineEvents(grpcEvents)
                 .build();
 
         responseStreamObserver.onNext(response);
@@ -154,7 +161,7 @@ public class GrpcEventService extends EventServiceGrpc.EventServiceImplBase {
     @Override
     public void streamMatchTimeline(
             StreamMatchTimelineRequest request,
-            StreamObserver<com.squad.event.grpc.TimelineEvent> streamObserver) {
+            StreamObserver<StreamMatchTimelineResponse> streamObserver) {
         log.info("Starting to stream match timeline on event {}", request.getEventId());
         streamManager.registerGatewayObserver(UUID.fromString(request.getEventId()), streamObserver);
     }

@@ -8,21 +8,13 @@ COPY gradle ./gradle
 COPY settings.gradle .
 COPY build.gradle .
 
+# Сначала копируем общий модуль контрактов и сам сервис
+COPY proto-contracts/build.gradle ./proto-contracts/
+COPY proto-contracts/src ./proto-contracts/src
+
 # Копируем исходный код и собираем проект
 COPY gateway/build.gradle ./gateway/
 COPY gateway/src ./gateway/src
-
-COPY user-service/build.gradle ./user-service/
-COPY user-service/src ./user-service/src
-
-COPY stats-service/build.gradle ./stats-service/
-COPY stats-service/src ./stats-service/src
-
-COPY clan-service/build.gradle ./clan-service/
-COPY clan-service/src ./clan-service/src
-
-COPY event-service/build.gradle ./event-service/
-COPY event-service/src ./event-service/src
 
 RUN ./gradlew :gateway:clean :gateway:build -x test --no-daemon
 

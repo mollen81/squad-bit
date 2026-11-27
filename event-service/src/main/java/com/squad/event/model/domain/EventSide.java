@@ -27,6 +27,7 @@ public class EventSide {
     private UUID leaderUserId;
 
     @Column(name = "is_ready", nullable = false)
+    @Builder.Default
     private boolean isReady = false;
 
     @Column(name = "ready_at")

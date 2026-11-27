@@ -1,6 +1,7 @@
 package com.squad.gateway.service.event;
 
 import com.squad.event.grpc.*;
+import com.squad.gateway.model.dto.response.StreamMatchTimelineHttpResponse;
 import com.squad.gateway.model.dto.response.TimelineEventHttpResponse;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
@@ -77,20 +78,20 @@ public class EventStreamBridgeService {
         Context.CancellableContext cancellableContext = Context.current().withCancellation();
         grpcStreamContexts.put(matchId, cancellableContext);
 
-        cancellableContext.run(() -> eventServiceStub.streamMatchTimeline(request, new StreamObserver<TimelineEvent>() {
+        cancellableContext.run(() -> eventServiceStub.streamMatchTimeline(request, new StreamObserver<StreamMatchTimelineResponse>() {
             @Override
-            public void onNext(TimelineEvent message) {
+            public void onNext(StreamMatchTimelineResponse message) {
                 // Преобразуем Protobuf в чистый Record для сериализации
                 TimelineEventHttpResponse dto = new TimelineEventHttpResponse(
-                        UUID.fromString(message.getId()),
-                        UUID.fromString(message.getMatchId()),
-                        message.getTimelineEventType(),
-                        message.getGameTimeSeconds(),
-                        message.getPayload(),
-                        message.getCreatedAt()
+                        UUID.fromString(message.getTimelineEvent().getId()),
+                        UUID.fromString(message.getTimelineEvent().getMatchId()),
+                        message.getTimelineEvent().getTimelineEventType(),
+                        message.getTimelineEvent().getGameTimeSeconds(),
+                        message.getTimelineEvent().getPayload(),
+                        message.getTimelineEvent().getCreatedAt()
                 );
 
-                broadcastToSse(matchId, dto);
+                broadcastToSse(matchId, new StreamMatchTimelineHttpResponse(dto));
             }
 
             @Override
@@ -107,7 +108,7 @@ public class EventStreamBridgeService {
         }));
     }
 
-    private void broadcastToSse(UUID matchId, TimelineEventHttpResponse eventData) {
+    private void broadcastToSse(UUID matchId, StreamMatchTimelineHttpResponse eventData) {
         List<SseEmitter> emitters = emittersByMatch.get(matchId);
         if (emitters == null || emitters.isEmpty()) {
             return;

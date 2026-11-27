@@ -1,22 +1,24 @@
-plugins {
-    id 'com.google.protobuf' version '0.9.4'
-}
+group = 'com.squadbit.user'
+version = '0.0.1'
 
 dependencies {
     // web
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // db
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.flywaydb:flyway-core'
 
+    // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // gRPC
+    implementation project(':proto-contracts')
     implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
-
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
     // tests
     implementation('org.springframework.boot:spring-boot-starter-test')
@@ -25,31 +27,6 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
-}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.25.3"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.62.2"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs 'build/generated/source/proto/main/grpc'
-            srcDirs 'build/generated/source/proto/main/java'
-        }
-    }
 }
 
 test {

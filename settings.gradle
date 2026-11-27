@@ -1,8 +1,16 @@
-rootProject.name = 'squad_platform'
-include 'user-service'
-include 'gateway'
-include 'stats-service'
-include 'clan-service'
-include 'deployment-service'
-include 'payment-service'
-include 'event-service'
+rootProject.name = 'squadbit'
+
+[
+        'proto-contracts',
+        'gateway',
+        'user-service',
+        'clan-service',
+        'event-service',
+        'stats-service',
+        'deployment-service',
+        'payment-service'
+].each { module ->
+    if (file(module).isDirectory()) {
+        include(module)
+    }
+}

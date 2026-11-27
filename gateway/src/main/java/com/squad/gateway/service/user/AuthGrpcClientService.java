@@ -2,9 +2,9 @@ package com.squad.gateway.service.user;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squad.grpc.user.AuthServiceGrpc;
-import com.squad.grpc.user.ResolveSteamAuthRequest;
-import com.squad.grpc.user.ResolveSteamAuthResponse;
+import com.squad.user.grpc.AuthServiceGrpc;
+import com.squad.user.grpc.ResolveSteamAuthRequest;
+import com.squad.user.grpc.ResolveSteamAuthResponse;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;

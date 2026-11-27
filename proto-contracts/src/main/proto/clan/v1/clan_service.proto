@@ -7,7 +7,7 @@ option java_package = "com.squad.clan.grpc";
 
 
 service ClanService {
-  rpc GetClanWithMembers (GetClanRequest) returns (GetClanResponse);
+  rpc GetClanWithMembers (GetClanWithMembersRequest) returns (GetClanWithMembersResponse);
 
   rpc GetAllClans (GetAllClansRequest) returns (GetAllClansResponse);
 
@@ -55,17 +55,17 @@ message PageInfo {
 
 enum SortDirection {
   SORT_DIRECTION_UNSPECIFIED = 0;
-  ASC = 1;
-  DESC = 2;
+  SORT_DIRECTION_ASC = 1;
+  SORT_DIRECTION_DESC = 2;
 }
 
 
 // getClanWithMembers
-message GetClanRequest {
+message GetClanWithMembersRequest {
   string clan_id = 1;
 }
 
-message GetClanResponse {
+message GetClanWithMembersResponse {
   ClanDto clan = 1;
 }
 
@@ -74,8 +74,8 @@ message GetClanResponse {
 message GetAllClansRequest {
   int32 page = 1;
   int32 rpp = 2;
-  string sortBy = 3;
-  string sortDir = 4;
+  string sort_by = 3;
+  string sort_dir = 4;
 }
 
 message GetAllClansResponse {
@@ -85,11 +85,11 @@ message GetAllClansResponse {
 
 
 message GetClanIdFromUserIdRequest {
-  string userId = 1;
+  string user_id = 1;
 }
 
 message GetClanIdFromUserIdResponse {
-  string clanId = 1;
+  string clan_id = 1;
 }
 
 
@@ -122,11 +122,11 @@ message ApplyToClanResponse {
 
 
 message ProcessAcceptanceRequest {
-  string applicationId = 1;
-  string acceptorId = 2;
+  string application_id = 1;
+  string acceptor_id = 2;
 }
 
 message ProcessAcceptanceResponse {
-  ClanMemberDto newMember = 1;
+  ClanMemberDto new_member = 1;
   string message = 2;
 }

@@ -20,7 +20,7 @@ public interface EventMatchRepository extends JpaRepository<EventMatch, UUID> {
     @Query(value = "SELECT * FROM event_match WHERE event_id = :event_id ORDER BY sequence_number", nativeQuery = true)
     List<EventMatch> findAllByEventIdOrderBySequenceNumber(@Param("event_id") UUID eventId);
 
-    Optional<EventMatch> findByEventIdAndMatchId(UUID eventId, UUID matchId);
+    Optional<EventMatch> findByEventIdAndId(UUID eventId, UUID matchId);
 
     @Query(value = "SELECT COUNT(*) FROM event_match WHERE event_id = :event_id AND winner_side_id = :winner_side_id", nativeQuery = true)
     int countByEventIdAndWinnerSideId(@Param("event_id") UUID eventId, @Param("winner_side_id") UUID winnerSideId);

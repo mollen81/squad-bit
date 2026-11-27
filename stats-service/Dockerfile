@@ -8,6 +8,10 @@ COPY gradle ./gradle
 COPY settings.gradle .
 COPY build.gradle .
 
+# Сначала копируем общий модуль контрактов и сам сервис
+COPY proto-contracts/build.gradle ./proto-contracts/
+COPY proto-contracts/src ./proto-contracts/src
+
 # Копируем исходный код и собираем проект
 COPY stats-service/build.gradle ./stats-service/
 COPY stats-service/src ./stats-service/src

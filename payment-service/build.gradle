@@ -1,9 +1,5 @@
-plugins {
-    id 'java'
-}
-
-group = 'org.mollen'
-version = '0.0.1-ALPHA'
+group = 'com.squadbit.payment'
+version = '0.0.1'
 
 repositories {
     mavenCentral()

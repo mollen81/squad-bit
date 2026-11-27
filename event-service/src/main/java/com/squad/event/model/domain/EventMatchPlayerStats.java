@@ -34,29 +34,38 @@ public class EventMatchPlayerStats {
     private String primaryRole;
 
     @Column(nullable = false)
+    @Builder.Default
     private int kills = 0;
 
     @Column(nullable = false)
+    @Builder.Default
     private int deaths = 0;
 
     @Column(nullable = false)
+    @Builder.Default
     private int points = 0;
 
     @Column(nullable = false)
+    @Builder.Default
     private int revives = 0;
 
     @Column(name = "team_kills", nullable = false)
+    @Builder.Default
     private int teamKills = 0;
 
     @Column(name = "vehicles_destroyed", nullable = false)
+    @Builder.Default
     private int destroyedVehicles = 0;
 
     @Column(name = "vehicles_lost", nullable = false)
+    @Builder.Default
     private int vehiclesLost = 0;
 
     @Column(name = "flying_time_seconds", nullable = false)
+    @Builder.Default
     private int flyingTimeSeconds = 0;
 
     @Column(name = "supply_points", nullable = false)
+    @Builder.Default
     private int supplyPoints = 0;
 }

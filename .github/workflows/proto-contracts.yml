@@ -1,0 +1,49 @@
+name: Proto Contracts CI
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "proto-contracts/**"
+      - ".github/workflows/proto-contracts.yml"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "proto-contracts/**"
+      - ".github/workflows/proto-contracts.yml"
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Buf lint
+        run: buf lint proto-contracts
+
+      - name: Buf breaking change check
+        if: github.event_name == 'pull_request'
+        run: |
+          if git cat-file -e origin/master:proto-contracts/buf.yaml 2>/dev/null; then
+            buf breaking proto-contracts --against '.git#branch=origin/master,subdir=proto-contracts'
+          else
+            echo "proto-contracts is not in master yet, skipping breaking check."
+          fi
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate and compile proto-contracts
+        run: ./gradlew :proto-contracts:build --no-daemon

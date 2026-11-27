@@ -37,5 +37,6 @@ public interface EventMatchLayerVoteRepository extends JpaRepository<EventMatchM
             GROUP BY layer_name ORDER BY COUNT(id) DESC, layer_name ASC
             LIMIT 1
             """, nativeQuery = true)
+
     Optional<String> findWinnerLayerByMatchId(@Param("match_id") UUID matchId);
 }
